@@ -32,14 +32,17 @@ class SignUp(CreateView):
         try:
             send_mail(
                 'Подтверждение пароля',
-                'Вам необходимо подтвердить пароль, пройдя по сслке <a href=""> Cskrf </a>',
+                'Вам необходимо подтвердить пароль, '
+                'пройдя по ссылке <a href=""> Ссылка</a>',
                 settings.EMAIL_HOST_USER,
                 [self.object.email],
                 fail_silently=False,
             )
         except Exception as e:
-            users_logger.error(f'Регистрация пользователя username: {self.object.username}.'
-                               f'Ошибка отправки письма на адрес: {self.object.email} {e.args[-1]}')
+            users_logger.error('Регистрация пользователя username: '
+                               f'{self.object.username}.'
+                               'Ошибка отправки письма на адрес: '
+                               f'{self.object.email} {e.args[-1]}')
         return super().form_valid(form)
 
 

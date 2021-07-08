@@ -10,7 +10,7 @@ urlpatterns = [
     path("auth/", include("django.contrib.auth.urls")),
     path('captcha/', include('captcha.urls')),
     path('users_admin/', views.users_admin, name='users_admin'),
-    path('users_admin_edit/<int:user_id>/', 
+    path('users_admin_edit/<int:user_id>/',
          views.users_admin_edit, name='users_admin_edit'),
     path('users_admin_delete/<int:user_id>/',
          views.users_admin_delete, name='users_admin_delete'),

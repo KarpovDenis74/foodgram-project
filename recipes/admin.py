@@ -15,7 +15,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = [MembershipInline,]
+    inlines = [MembershipInline, ]
 
     search_fields = ("title",)
     list_filter = ("time_cooking",)

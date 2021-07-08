@@ -1,10 +1,12 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
+# from django.core.management.base import CommandError
 from recipes.models import Ingredient
 import csv
 from foodgram.settings import BASE_DIR
 import os
 
 CSV_FILE_PATCH = os.path.join(BASE_DIR, 'ingredients.csv')
+
 
 class Command(BaseCommand):
     help = 'Load Ingredient'
