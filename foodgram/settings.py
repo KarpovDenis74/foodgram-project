@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['130.193.41.184',
                  '127.0.0.1',
                  "testserver", ]
 
+
 SITE_ID = 1
 
 # Application definition
