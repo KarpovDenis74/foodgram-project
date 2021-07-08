@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.test import Client
 from users.models import User
-from django.urls import reverse
+# from django.urls import reverse
 from django.conf import settings
 
 
@@ -23,7 +23,9 @@ class TestPosts(TestCase):
     #     """
     #     Проверка, что зарегистрированный пользователь может создать пост
     #     """
-    #     check_list = {'text': 'test text', 'group': self.group1.id, 'author': self.user.id}
+    #     check_list = {'text': 'test text',
+    #                   'group': self.group1.id,
+    #                   'author': self.user.id}
     #     response = self.client_on.post(
     #         reverse('new_post'),
     #         data={
@@ -94,7 +96,8 @@ class TestPosts(TestCase):
     #     self.text_check = "Измененный пост"
     #     self.response = self.client_on.post(
     #         reverse('post_edit',  kwargs={
-    #                 'username': self.user.username, 'post_id': self.post.id}),
+    #                 'username': self.user.username,
+    #                 'post_id': self.post.id}),
     #         data={'username': self.user.username,
     #               'post_id': self.post.id,
     #               })
