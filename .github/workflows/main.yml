@@ -59,6 +59,7 @@ jobs:
           sudo docker image prune -a -f
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:v1.0
           sudo docker-compose down
+          sleep 30
           sudo docker-compose up
   send_message:
     runs-on: ubuntu-latest
