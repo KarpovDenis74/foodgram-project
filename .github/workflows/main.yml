@@ -56,7 +56,7 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }}
         script: |
-          sudo docker-compose pull ${{ secrets.DOCKER_USERNAME }}/foodgram:v1.0
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:v1.0
           sudo docker-compose down
           sudo docker-compose up
   send_message:
