@@ -58,7 +58,7 @@ jobs:
         script: |
           sudo docker image prune -a -f
           sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram:v1.0
-          sudo docker-compose down
+          sudo docker-compose down -t 30
           sleep 30
           sudo docker-compose up
   send_message:
