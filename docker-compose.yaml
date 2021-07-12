@@ -11,6 +11,7 @@ services:
       - ./.env
   web:
     image: fotokarpov/foodgram:v1.0
+
     restart: always
     ports:
       - "8000:8000"
