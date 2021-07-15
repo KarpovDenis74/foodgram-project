@@ -17,11 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
-# from recipes import views
+from recipes import views
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include("users.urls")),
-    path('', include("recipes.urls")),
+    path('recipes', include("recipes.urls", namespace='recipes')),
+    path('', views.RecipeViewList.as_view(), name="index"),
 ]

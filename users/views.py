@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import logging
 
 # настраиваем логирование в приложении Users
@@ -29,11 +30,15 @@ class SignUp(CreateView):
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
         self.object = form.save()
+        confirmation_code = PasswordResetTokenGenerator()
         try:
             send_mail(
                 'Подтверждение пароля',
                 'Вам необходимо подтвердить пароль, '
-                'пройдя по ссылке <a href=""> Ссылка</a>',
+                'пройдя по'
+                f' <a href="{settings.SITE_IP_SERVER}/'
+                f'check_email/{confirmation_code}/">'
+                'ссылке для подтверждения e-mail</a>',
                 settings.EMAIL_HOST_USER,
                 [self.object.email],
                 fail_silently=False,
@@ -56,7 +61,7 @@ def users_admin(request):
 
 @login_required
 def users_admin_edit(request, user_id):
-    if not request.user.is_admin:
+    if not request.user.is_staff:
         return redirect('index')
     user = get_object_or_404(User, pk=user_id)
     form = FormUsersEdit(request.POST or None, instance=user)

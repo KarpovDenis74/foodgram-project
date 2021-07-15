@@ -27,7 +27,17 @@ class FormUsersEdit(ModelForm):
 
     class Meta:
         model = User
-        fields = ["first_name", "last_name", "username", "email"]
+        fields = ["first_name",
+                  "last_name",
+                  "username",
+                  "email",
+                  "is_email_confirmed",
+                  "is_staff",
+                  "role",
+                  "phone",
+                  "communications"
+
+                  ]
         labels = {
             'username': 'Ваш ник в системе'
         }

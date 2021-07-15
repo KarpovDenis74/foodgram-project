@@ -5,8 +5,9 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Регистрация</title>
+    <title>{% block title %}{% endblock %}</title>
     {% load static %}
+    {% block css %}{% endblock %}
     <link rel="stylesheet" href='{% static "pages/form.css" %}'>
     <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
@@ -16,7 +17,6 @@
     {% include 'header.html' %}
     <main>
         <div class="container">
-            <h1>{% block header %}{% endblock %}</h1>
             {% block content %}
             <!-- Содержимое страницы -->
             {% endblock %}
