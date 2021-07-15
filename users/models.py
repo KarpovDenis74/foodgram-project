@@ -10,6 +10,7 @@ class CommunicationNetwork(models.Model):
     def __str__(self):
         return f'{self.name}'
 
+
 class User(AbstractUser):
     class Role(models.TextChoices):
         USER = 'user', _('user')
@@ -34,11 +35,11 @@ class User(AbstractUser):
     phone = models.CharField(
         max_length=25,
         blank=True)
-    communications = models.ManyToManyField(CommunicationNetwork,
-                                            through='UserCommunicationNetwork',
-                                            through_fields=('user',
-                                            'communication_network'),
-                                            blank=True)
+    communications = (models.ManyToManyField(CommunicationNetwork,
+                      through='UserCommunicationNetwork',
+                      through_fields=('user',
+                                      'communication_network'),
+                      blank=True))
 
     def __str__(self):
         return f'{self.username}: {self.full_name}'

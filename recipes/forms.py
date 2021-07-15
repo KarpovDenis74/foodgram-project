@@ -2,6 +2,7 @@ from django.forms import ModelForm
 from django import forms
 from recipes.models import Recipe
 
+
 class RecipeForm(ModelForm):
     def clean_text(self):
         if self.cleaned_data['name'] is None:

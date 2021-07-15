@@ -1,6 +1,6 @@
 from django.urls import path
 from users import views
-from django.contrib.auth import get_user_model, urls
+from django.contrib.auth import get_user_model
 from django.urls.conf import include
 
 User = get_user_model()

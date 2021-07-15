@@ -1,6 +1,6 @@
 from django.contrib import admin
 from users.models import (CommunicationNetwork,
-                         User,
+                          User,
                           UserCommunicationNetwork)
 
 
@@ -8,8 +8,9 @@ class MembershipInline(admin.TabularInline):
     model = UserCommunicationNetwork
     extra = 1
 
+
 class UserAdmin(admin.ModelAdmin):
-    inlines = [MembershipInline,]
+    inlines = [MembershipInline, ]
     list_display = ("pk", "username", "first_name", "last_name", "email")
     search_fields = ("username", )
     list_filter = ("email",)
