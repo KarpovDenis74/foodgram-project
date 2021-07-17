@@ -9,7 +9,7 @@
     {% load static %}
     {% block css %}{% endblock %}
     <link rel="stylesheet" href='{% static "pages/form.css" %}'>
-    <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href='{% static "bootstrap/dist/css/bootstrap.min.css" %}'>
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
     <script src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
 </head>
@@ -17,12 +17,19 @@
     {% include 'header.html' %}
     <main>
         <div class="container">
-            {% block content %}
-            <!-- Содержимое страницы -->
-            {% endblock %}
+            {% block content %}{% endblock %}
         </div>
     </main>
-    {% include 'footer.html' %}
+    <footer class="footer">
+        <div class="footer__container container">
+            <a href="#" class="footer__brand link">Продуктовый помощник</a>
+            <ul class="footer__items">
+                <li class="footer__item"><a href="#" class="footer__link link">Об авторе </a></li>
+                <li class="footer__item"><a href="#" class="footer__link link">Технологии</a></li>
+            </ul>
+        </div>
+    </footer>
+    {% block js %}{% endblock %}
 </body>
 
 </html>

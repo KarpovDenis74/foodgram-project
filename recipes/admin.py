@@ -4,28 +4,29 @@ from recipes.models import Ingredient, Recipe, RecipeIngredient
 
 class MembershipInline(admin.TabularInline):
     model = RecipeIngredient
-    extra = 1
+    min_num = 1
+    extra = 0
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ("pk", "title", "unit")
+    list_display = ("pk", "title", "dimension")
     search_fields = ("title",)
-    list_filter = ("unit",)
+    list_filter = ("dimension",)
     empty_value_display = "-пусто-"
 
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = [MembershipInline, ]
 
-    search_fields = ("title",)
+    search_fields = ("name",)
     list_filter = ("time_cooking",)
     empty_value_display = "-пусто-"
 
 
 class RecipeIngredientAdmin(admin.ModelAdmin):
-    list_display = ("pk", "recipes", "ingredient", "count")
+    list_display = ("pk", "recipes", "ingredient", "amount")
     search_fields = ("recipes", "ingredient")
-    list_filter = ("count",)
+    list_filter = ("amount",)
     empty_value_display = "-пусто-"
 
 

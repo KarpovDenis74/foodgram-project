@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
+from django.forms.widgets import MediaDefiningClass
 # from django.db.models.aggregates import Count
 
 User = get_user_model()
@@ -8,37 +9,45 @@ User = get_user_model()
 
 class Ingredient(models.Model):
     title = models.CharField(max_length=256)
-    unit = models.CharField(max_length=128)
+    dimension = models.CharField(max_length=128)
 
     def __str__(self):
         return f'{self.title}, {self.unit}'
+    
+    class Meta:
+        verbose_name = 'Инградиент'
+        verbose_name_plural = 'Инградиенты'
+        ordering = ('title', )
 
 #    class Meta(self):
 
 
 class Recipe(models.Model):
-    name = models.CharField(max_length=256,
+    name = models.CharField(max_length=128,
                             verbose_name='Название рецепта')
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
                                related_name='recipe',
                                verbose_name='Автор')
-    text = models.TextField()
+    text = models.TextField(
+        verbose_name=('Описание рецепта'))
     time_cooking = (models.PositiveIntegerField(
-                    verbose_name='Время приготовления'))
+                    verbose_name='Время приготовления,(в минутах)'))
     ingredient = models.ManyToManyField(Ingredient,
                                         through="RecipeIngredient",
                                         through_fields=('recipes',
-                                                        'ingredient')
+                                                        'ingredient'),
+                                        verbose_name='Инградиент'
                                         )
     pub_date = models.DateTimeField(verbose_name='Дата публикации',
                                     auto_now_add=True,
                                     db_index=True)
-    image = models.ImageField(upload_to='posts/', blank=True,
+    image = models.ImageField(upload_to='recipes/image/', blank=True,
                               verbose_name='Изображение готового блюда')
+    slug =  models.SlugField(max_length=150)
 
     def __str__(self):
-        return self.title
+        return self.name
 
     class Meta:
         ordering = ('-pub_date',)
@@ -49,11 +58,11 @@ class Recipe(models.Model):
 class RecipeIngredient(models.Model):
     recipes = models.ForeignKey(Recipe, on_delete=models.CASCADE)
     ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
-    count = models.FloatField(verbose_name="Количество",
+    amount = models.FloatField(verbose_name="Количество",
                               validators=[MinValueValidator(0)])
 
     def __str__(self):
-        return f'{self.recipes.title}: {self.ingredient.title}: {self.count}'
+        return f'{self.recipes.name}: {self.ingredient.title} - {self.amount}'
 
     class Meta:
         verbose_name = 'Инградиент в рецепте'

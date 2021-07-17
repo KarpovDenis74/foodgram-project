@@ -18,11 +18,17 @@ from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
 from recipes import views
+from rest_framework.routers import DefaultRouter
+
+
+
 
 
 urlpatterns = [
+    path('api/v1/ingredients/', views.RecipeViewList.as_view(),
+         name="api_ingredients"),
     path('admin/', admin.site.urls),
     path('users/', include("users.urls")),
-    path('recipes', include("recipes.urls", namespace='recipes')),
+    path('recipes/', include("recipes.urls")),
     path('', views.RecipeViewList.as_view(), name="index"),
 ]

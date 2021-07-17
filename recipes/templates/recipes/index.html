@@ -28,7 +28,7 @@
         </div>
         <div class="card-list">
             <div class="card" data-id="120">
-                <a href="#" class="link" target="_blank"><img src="{% static '/images/testCardImg.png' %}" alt="Какой-то текст" class="card__image"></a>
+                <a href="#" class="link" target="_blank"><img src="{% static 'images/testCardImg.png' %}" alt="Какой-то текст" class="card__image"></a>
                 <div class="card__body">
                     <a class="card__title link" href="#" target="_blank">Французские тосты</a>
                     <ul class="card__items">
@@ -46,7 +46,7 @@
                 </div>
             </div>
             <div class="card" data-id="121">
-                <a href="#" class="link" target="_blank"><img src="./images/testCardImg.png" alt="Какой-то текст" class="card__image"></a>
+                <a href="#" class="link" target="_blank"><img src="{% static 'images/testCardImg.png' %}" alt="Какой-то текст" class="card__image"></a>
                 <div class="card__body">
                     <a class="card__title link" href="#" target="_blank">Французские тосты</a>
                     <ul class="card__items">
@@ -64,7 +64,7 @@
                 </div>
             </div>
             <div class="card" data-id="122">
-                <a href="#" class="link" target="_blank"><img src="./images/testCardImg.png" alt="Какой-то текст" class="card__image"></a>
+                <a href="#" class="link" target="_blank"><img src="{% static 'images/testCardImg.png' %}" alt="Какой-то текст" class="card__image"></a>
                 <div class="card__body">
                     <a class="card__title link" href="#" target="_blank">Французские тосты</a>
                     <ul class="card__items">
@@ -82,7 +82,7 @@
                 </div>
             </div>
             <div class="card" data-id="123">
-                <a href="#" class="link" target="_blank"><img src="./images/testCardImg.png" alt="Какой-то текст" class="card__image"></a>
+                <a href="#" class="link" target="_blank"><img src="{% static 'images/testCardImg.png' %}" alt="Какой-то текст" class="card__image"></a>
                 <div class="card__body">
                     <a class="card__title link" href="#" target="_blank">Французские тосты</a>
                     <ul class="card__items">
@@ -100,7 +100,7 @@
                 </div>
             </div>
             <div class="card" data-id="124">
-                <a href="#" class="link" target="_blank"><img src="./images/testCardImg.png" alt="Какой-то текст" class="card__image"></a>
+                <a href="#" class="link" target="_blank"><img src="{% static 'images/testCardImg.png' %}" alt="Какой-то текст" class="card__image"></a>
                 <div class="card__body">
                     <a class="card__title link" href="#" target="_blank">Французские тосты</a>
                     <ul class="card__items">
@@ -130,7 +130,8 @@
             </ul>
         </nav>
     </main>
-
+{% endblock %}
+{% block js %}
 <script src="{% static 'js/components/MainCards.js' %}"></script>
 <script src="{% static 'js/components/Purchases.js' %}"></script>
 <script src="{% static 'js/config/config.js' %}"></script>
@@ -139,10 +140,10 @@
 <script src="{% static 'js/api/Api.js' %}"></script>
 
 {% if user.is_authenticated %}
-    <script src="./js/components/Favorites.js"></script>
-    <script src="indexAuth.js"></script>
+<script src="{% static 'js/components/Favorites.js' %}"></script>
+<script src="{% static 'indexAuth.js' %}"></script>
 {% else %}
-    <script src="{% static 'indexNotAuth.js' %}"></script>
+<script src="{% static 'indexNotAuth.js' %}"></script>
 {% endif %}
 
 {% endblock %}
