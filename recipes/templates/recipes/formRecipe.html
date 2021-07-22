@@ -2,17 +2,16 @@
 {% block title %}
     {{ context.title }}
 {% endblock %}
-
 {% load static %}
 {% block css %}
-    <link rel="stylesheet" href="{% static 'pages/index.css' %}">
+<link rel="stylesheet" href="{% static 'pages/index.css' %}">
 {% endblock %}
 {% block content %}
 {% load user_filters %}
 
 
 
-
+<main class="main container">
 <div class="main__header">
     <h1 class="main__title">{{ context.title }}</h1>
 </div>
@@ -96,7 +95,7 @@
         </div>
     </form>
 </div>
-
+</main>
 
 
 {% endblock %}

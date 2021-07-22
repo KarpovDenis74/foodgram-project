@@ -8,7 +8,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from recipes.serialisers import (IngredientSerializer,
-                                 FormToRecipeSerializer)
+                                 FormToRecipeSerializer, MealTimeSerializer,
+                                 RecipeSerializer)
 # from django.db import transaction
 from django.views.decorators.cache import cache_control, never_cache
 from rest_framework.decorators import api_view, renderer_classes
@@ -28,24 +29,48 @@ class RecipeView:
         context = {'title': 'Создание рецепта',
                    'button_name': 'Создать рецепт'}
         if request.POST:
-            recipe_form = FormToRecipeSerializer(request.POST)
+            print(request.POST)
+            print(request.FILES)
+            recipe_form = FormToRecipeSerializer(request.POST, request.FILES)
             recipe_form.set_object_meal_time()
-            print(
-                f' - recipe_form.meal_time = {recipe_form.meal_time}')
             recipe_form.set_ingredient_and_amount()
-            # if recipe_form.is_valid:
-                # print(recipe_form)
-                # print(f'- recipe_form.keys_post = {recipe_form.keys_post}')
-            print(f'- recipe_form.ingredients = {recipe_form.ingredients}')
-  
+            if not recipe_form.is_valid:
+                render(request,
+                    'recipes/formRecipe.html',
+                    {'context': context, 'errors': recipe_form.errors})
+            print(recipe_form.name, request.user,
+                recipe_form.description, recipe_form.time_cooking, recipe_form.image
+                    )
+            recipe = Recipe(name=recipe_form.name,
+                            author=request.user,
+                            text=recipe_form.description,
+                            time_cooking=recipe_form.time_cooking,
+                            image=recipe_form.image,
+                            )
+            recipe.save()
+            for meal_time in recipe_form.meal_time:
+                # serialiser_meal_time = MealTimeSerializer(meal_time)
+                # print(f'.....serialiser_meal_time = {serialiser_meal_time.data}')
+                # print(f'- recipe_form.meal_time = {meal_time}')
+                recipe.miel_time.add(meal_time)
 
+
+            # код до этого места работает нормально
+            # 1. Нужно создать объект промежуточной страницы и сохранить объект
+            # 2. Нужно объеденить все три записи в транзакцию
+            #    
+            for ingredient in range(0, len(recipe_form.ingredients)):
+
+                recipe.ingredient.add(ingredient)
+            print(f' - recipe = {recipe}')
+            serializer = RecipeSerializer(recipe)
+            print(serializer.data)  
+            print(f'- recipe_form.ingredients = {recipe_form.ingredients}')
             return redirect('index')
-            # render(request,
-            #        'recipes/formRecipe.html',
-            #        {'context': context, 'errors': recipe_form.errors})
         return render(request,
-                      'recipes/formRecipe.html',
-                      {'context': context})
+                'recipes/formRecipe.html',
+                {'context': context})
+
 
 
 class ApiIngredient(APIView):

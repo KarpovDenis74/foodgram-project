@@ -5,15 +5,19 @@ from time import sleep
 
 
 class MealTimeSerializer(serializers.ModelSerializer):
+    name_english = serializers.CharField(max_length=128)
     class Meta:
         model = MealTime
-        fields = ['breakfast', 'lunch', 'dinner']
+        fields = ['name_english']
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Recipe
-        fields = ['name', 'author', 'text', 'time_cooking', "pub_date"]
+        fields = ['name', 'author', 'text',
+                  'time_cooking', "pub_date", 'image',
+                  'ingredient', 'miel_time']
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -29,16 +33,20 @@ class FormToRecipeSerializer:
     """
         Принимает в качестве аргумента словарь request.POST
         из POST запроса.
-        сериализует полученные данные в переменные
+        сериализует полученные данные для объекта Recipe
+        в переменные:
             self.ingredients = [объект Ingredient, amount]
             self.meal_time = [объекты MealTime}
-
     """
-    def __init__(self, query):
+    def __init__(self, query, file):
         self.ingredients = []
         self.meal_time = []
         self.errors = []
         self.query = query
+        self.description = self.query.get('description')
+        self.name = self.query.get('name')[0]
+        self.time_cooking = self.query.get('name')[1]
+        self.image = file
         self.keys_post = self.query.keys()
         # маска ключа имени инградиента в POST-ответе
         self.name_ingredient_mask = 'nameIngredient_'
@@ -53,7 +61,7 @@ class FormToRecipeSerializer:
 
     def set_object_meal_time(self):
         """
-        определяет найденные объекты MealTime
+        ищет объекты MealTime
         Результат действия:
             1. при наличии значений меток времени в модели MealTime:
                 возвращает True
@@ -78,11 +86,11 @@ class FormToRecipeSerializer:
 
     def set_ingredient_and_amount(self):
         """
-        определяет найденные объекты Ingredient и amount
+        ищет объект Ingredient и значение amount
         Ищет в ключах POST-запроса:
             - 'nameIngredient_' и 'valueIngredient_'
             - запрашивает данные в модели Ingredient
-        Выводит:
+        Результат действия:
             1. при наличии значений ингредиентов в модели Ingredient:
                 возвращает True
                 устанавливает список найденных объектов:
@@ -117,3 +125,6 @@ class FormToRecipeSerializer:
             self.errors += ['Инградиенты не найдены']
             return False
         return bool(True)
+    
+    def set_object_recipe_fields(self):
+        return bool(True) 
