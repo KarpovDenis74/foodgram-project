@@ -1,4 +1,3 @@
-
 const counterId = document.querySelector('#counter');
 
 const ingredientsContainer = document.querySelector('.form__field-group-ingredientes-container');
@@ -106,3 +105,5 @@ const ingredients = Ingredients();
 formDropdownItems.addEventListener('click', ingredients.dropdown);
 // вешаем слушатель на кнопку
 addIng.addEventListener('click', ingredients.addIngredient);
+
+

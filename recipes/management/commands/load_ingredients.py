@@ -15,5 +15,6 @@ class Command(BaseCommand):
         with open(CSV_FILE_PATCH, encoding='utf-8') as file:
             reader = csv.reader(file)
             for row in reader:
-                title, unit = row
-                Ingredient.objects.get_or_create(title=title, unit=unit)
+                title, dimension = row
+                Ingredient.objects.get_or_create(
+                    title=title, dimension=dimension)

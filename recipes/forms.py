@@ -15,7 +15,7 @@ class RecipeForm(ModelForm):
     class Meta:
         model = Recipe
         fields = ['name', 'text', 'time_cooking',
-                  'image', 'ingredient']
+                  'image',]
         labels = {
 
         }
@@ -23,6 +23,5 @@ class RecipeForm(ModelForm):
             'name': 'Введите как называется Ваше блюдо',
             'text': 'Введите подробно описание процесса приготовления блюда',
             'time_cooking': 'Сколько по времени готовиться блюдо',
-            'image': 'Картинка - хороший способ показать всем свое блюдо',
-            'ingredient': 'Какие инградиенты использованы для приготовления'
+            'image': 'Картинка - хороший способ показать всем свое блюдо' 
         }

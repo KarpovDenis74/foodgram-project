@@ -10,31 +10,16 @@
 {% block content %}
 {% load user_filters %}
 
+
+
+
 <div class="main__header">
     <h1 class="main__title">{{ context.title }}</h1>
 </div>
 <div class="form-container">
-    <form class="form" method="post" action="{% url 'recipes:new' %} enctype="multipart/form-data">
-        {% csrf_token %}
-        {% if form.errors %}<span class="form__error">Пожалуста заполните корретно поля формы:</span> <br>{% endif %}  
-        {% for error in form.errors %}
-            <span class="form__error">{{ error }}</span>
-        {% endfor %}
-        <br>
-
-        {% for field in form %}
-        <div class="form__group">
-            <label for="id_first_name" class="form__label">{{ field.label }}{% if field.field.required %}<span
-                            class="required">*</span>{% endif %}
-            </label>
-            <div class="form__field-group">
-                {{ field|addclass:"form__input" }}
-                {% if form.field.errors %}<span class="form__error">{{ form.field.errors }}</span>{% endif %}      
-            </div>
-        </div>
-        {% endfor %}
-
-
+    <form class="form" method="post" action="{% url 'recipes:new' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+        
         <div class="form__group">
             <label for="id_name" class="form__label">Название рецепта</label>
             <div class="form__field-group">
@@ -42,20 +27,24 @@
                 <span class="form__error"></span>
             </div>
         </div>
+        {% for error in errors %}<span class="form__error">{{ error }}</span>{% endfor %}
         <div class="form__group">
             <p class="form__label">Теги</p>
             <div class="form__field-group">
                 <div class="tags">
                     <div class="tags__item">
-                        <input type="checkbox" name="breakfast" id="id_breakfast" class="tags__checkbox tags__checkbox_style_orange">
+                        <input type="checkbox" name="breakfast" id="id_breakfast"
+                            class="tags__checkbox tags__checkbox_style_orange">
                         <label for="id_breakfast" class="tags__label">Завтрак</label>
                     </div>
                     <div class="tags__item">
-                        <input type="checkbox" name="lunch" id="id_lunch" class="tags__checkbox tags__checkbox_style_green" checked>
+                        <input type="checkbox" name="lunch" id="id_lunch"
+                            class="tags__checkbox tags__checkbox_style_green" checked>
                         <label for="id_lunch" class="tags__label">Обед</label>
                     </div>
                     <div class="tags__item">
-                        <input type="checkbox" name="dinner" id="id_dinner" class="tags__checkbox tags__checkbox_style_purple" checked>
+                        <input type="checkbox" name="dinner" id="id_dinner"
+                            class="tags__checkbox tags__checkbox_style_purple" checked>
                         <label for="id_dinner" class="tags__label">Ужин</label>
                     </div>
                 </div>
@@ -103,7 +92,7 @@
             </div>
         </div>
         <div class="form__footer">
-            <button class="button button_style_blue">{{ context.button_name }}</button>
+            <button class="button button_style_blue">Создать рецепт</button>
         </div>
     </form>
 </div>

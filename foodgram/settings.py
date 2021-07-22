@@ -10,14 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-from pathlib import Path
 import os
 from dotenv import load_dotenv  # библиотека чтения переменных среды
 load_dotenv()                   # получаем переменный из файла .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-
+# BASE_DIR = Path(__file__).resolve().parent.parent
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -28,10 +28,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['*',
-                 'localhost',
+ALLOWED_HOSTS = ['localhost',
                  '127.0.0.1',
                  "testserver", ]
 ALLOWED_HOSTS.append(os.environ.get('SITE_IP_SERVER'))
@@ -46,13 +45,23 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'sorl.thumbnail',
-    'rest_framework',
-    'users',
-    'recipes',
-    'captcha',
+    'rest_framework', ]
+DEVELOPER_APP = ['users',
+                 'recipes',
+                 'captcha', ]
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 if DEBUG:
-    INSTALLED_APPS += []
+    INTERNAL_IPS = ['127.0.0.1', ]
+    INSTALLED_APPS = INSTALLED_APPS + ['debug_toolbar'] + DEVELOPER_APP
+    MIDDLEWARE += ['debug_toolbar.middleware.DebugToolbarMiddleware']
     DATABASES = {
         'default': {
             'ENGINE': os.environ.get('DB_ENGINE'),
@@ -64,7 +73,7 @@ if DEBUG:
         }
     }
 else:
-    INSTALLED_APPS += []
+    INSTALLED_APPS += DEVELOPER_APP
     # Database
     # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
     DATABASES = {
@@ -77,17 +86,6 @@ else:
             'PORT': os.environ.get('DB_PORT'),
         }
     }
-
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-]
 
 ROOT_URLCONF = 'foodgram.urls'
 
@@ -140,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -154,8 +152,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-STATICFILES_DIR = os.path.join(BASE_DIR, "staticfiles")
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "staticfiles"), )
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
@@ -165,7 +163,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_URL = "/auth/login/"
+LOGIN_URL = "/users/auth/login/"
 LOGIN_REDIRECT_URL = "index"
 LOGOUT_REDIRECT_URL = "index"
 AUTH_USER_MODEL = 'users.User'
