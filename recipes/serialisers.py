@@ -1,11 +1,12 @@
 from rest_framework import serializers
-from recipes.models import Recipe, Ingredient, MealTime
+from recipes.models import Recipe, Ingredient, MealTime, RecipeIngredient
 import re
-from time import sleep
+from django.db import transaction
 
 
 class MealTimeSerializer(serializers.ModelSerializer):
     name_english = serializers.CharField(max_length=128)
+
     class Meta:
         model = MealTime
         fields = ['name_english']
@@ -38,28 +39,22 @@ class FormToRecipeSerializer:
             self.ingredients = [объект Ingredient, amount]
             self.meal_time = [объекты MealTime}
     """
-    def __init__(self, query, file):
+    def __init__(self, request):
         self.ingredients = []
         self.meal_time = []
-        self.errors = []
-        self.query = query
-        self.description = self.query.get('description')
-        self.name = self.query.get('name')[0]
-        self.time_cooking = self.query.get('name')[1]
-        self.image = file
-        self.keys_post = self.query.keys()
+        self.errors = {}
+        self.request = request
+        self.description = self.request.POST.get('description')
+        self.name = self.request.POST.get('name')
+        self.time_cooking = self.request.POST.get('time_cooking')
+        self.image = ''
+        self.keys_post = self.request.POST.keys()
         # маска ключа имени инградиента в POST-ответе
         self.name_ingredient_mask = 'nameIngredient_'
         # маска ключа количества инградиента в POST-ответе
         self.value_ingredient_mask = 'valueIngredient_'
 
-    def is_valid(self):
-        object_meal_time = self.set_object_meal_time()
-        ingredient_and_amount = self.set_ingredient_and_amount()
-        return True if (object_meal_time
-                        and ingredient_and_amount) else False
-
-    def set_object_meal_time(self):
+    def meal_time_exist(self):
         """
         ищет объекты MealTime
         Результат действия:
@@ -79,12 +74,13 @@ class FormToRecipeSerializer:
                 if meal_time_object.exists:
                     self.meal_time += meal_time_object
         except Exception:
-            self.errors += ['Не правильно метки времени приема пищив']
+            self.errors['meal_time'] = ('Поставте, пожалуста,'
+                                        ' метки времени приема пищив')
             self.meal_time = False
             return bool(False)
         return bool(True)
 
-    def set_ingredient_and_amount(self):
+    def ingredient_and_amount_exist(self):
         """
         ищет объект Ingredient и значение amount
         Ищет в ключах POST-запроса:
@@ -107,24 +103,86 @@ class FormToRecipeSerializer:
                 number_ingredient = re.findall(r'\d+', key)[0]
                 amount_ingredient_key = ('valueIngredient_'
                                          f'{number_ingredient}')
-                ingredient_amount = int(self.query.get(
+                ingredient_amount = int(self.request.POST.get(
                     amount_ingredient_key))
                 if ingredient_amount <= 0:
-                    self.errors += ['Количество инградиентов'
-                                    ' должно быть числом больше "0"']
+                    self.errors['amount'] = ('Количество инградиентов'
+                                             ' должно быть числом больше "0"')
                     return False
-                ingredient_title = self.query.get(key)
+                ingredient_title = self.request.POST.get(key)
                 try:
                     ingredient_object = Ingredient.objects.get(
                         title=ingredient_title)
-                    self.ingredients += [ingredient_object, ingredient_amount]
+                    self.ingredients.append([ingredient_object,
+                                            ingredient_amount])
                 except Exception:
                     pass
         if self.ingredients == []:
             self.ingredients = False
-            self.errors += ['Инградиенты не найдены']
+            self.errors['ingredient'] = 'Инградиенты не найдены'
             return False
         return bool(True)
-    
-    def set_object_recipe_fields(self):
-        return bool(True) 
+
+    def description_exist(self):
+        if len(self.description) <= 0:
+            self.errors['description'] = ('Пожалуйста, опишите Ваш рецепт')
+            return bool(False)
+        return bool(True)
+
+    def name_exist(self):
+        if (len(self.name) < 1 or len(self.name) >= 128):
+            self.errors['name'] = ('Дайте рецепту название'
+                                   ' - не больше 128 символов')
+            return bool(False)
+        return bool(True)
+
+    def time_cooking_exist(self):
+        try:
+            self.time_cooking = int(self.time_cooking)
+        except Exception:
+            self.errors['time_cooking'] = (
+                'Время приготовления должно быть числом')
+            return bool(False)
+        if self.time_cooking <= 0:
+            self.errors['time_cooking'] = (
+                'Время приготовления должно быть положительным числом')
+            return bool(False)
+        return bool(True)
+
+    def image_exist(self):
+        try:
+            self.image = self.request.FILES.get('file')
+        except Exception:
+            self.image = None
+        return bool(True)
+
+    def save(self):
+        if not (self.name_exist()
+                and self.meal_time_exist()
+                and self.ingredient_and_amount_exist()
+                and self.time_cooking_exist()
+                and self.description_exist()
+                and self.image_exist()):
+            return bool(False)
+        try:
+            with transaction.atomic():
+                recipe = Recipe(name=self.name,
+                                author=self.request.user,
+                                text=self.description,
+                                time_cooking=self.time_cooking,
+                                image=self.image)
+                recipe.save()
+                for meal_time in self.meal_time:
+                    recipe.miel_time.add(meal_time)
+                for ingr_number in range(0, len(self.ingredients)):
+                    recipe_ingredient = RecipeIngredient(
+                        recipes=recipe,
+                        ingredient=self.ingredients[ingr_number][0],
+                        amount=self.ingredients[ingr_number][1])
+                    recipe_ingredient.save()
+        except Exception:
+            self.errors['form_error'] = (
+                'Рецепт не может быть сохранен.'
+                ' Заполните, пожалуста, данные формы.')
+            return bool(False)
+        return bool(True)
