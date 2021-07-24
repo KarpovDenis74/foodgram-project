@@ -4,6 +4,7 @@ ___db.sqlite3
 _source_code/
 TZ/
 media/
+static/
 
 
 # Byte-compiled / optimized / DLL files
