@@ -8,7 +8,7 @@
         <h1 class="main__title">Регистрация</h1>
     </div>
     <div class="form-container">
-        <form class="form" method="post" action="{% url 'users:signup' %}">
+        <form class="form" method="post" action="{% url 'signup' %}">
             {% csrf_token %}
             {% if form.errors %}<span class="form__error">Пожалуста заполните корретно поля формы:</span> <br>{% endif %}  
             {% for error in form.errors %}

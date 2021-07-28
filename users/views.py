@@ -25,7 +25,7 @@ class SignUp(CreateView):
     template_name = 'users/reg.html'
     form_class = CreationForm
     success_url = reverse_lazy(
-        "users:login")
+        "login")
 
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
