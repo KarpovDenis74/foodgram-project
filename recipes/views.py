@@ -1,7 +1,5 @@
 from django.shortcuts import render
-from django.utils.translation import ungettext
-from django.views.generic import ListView
-from recipes.models import (Ingredient, Recipe, 
+from recipes.models import (Ingredient, Recipe,
                             RecipeIngredient, Subscription,
                             Favorite)
 from django.contrib.auth import get_user_model
@@ -45,9 +43,11 @@ class RecipeView:
 
     def view(request, recipe_id):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
-        ingredients = RecipeIngredient.objects.select_related('ingredient').filter(recipes=recipe)
+        ingredients = (RecipeIngredient.objects.select_related(
+            'ingredient').filter(recipes=recipe))
         try:
-            subscription = Subscription.objects.get(user=request.user, author=recipe.author)
+            subscription = Subscription.objects.get(user=request.user,
+                                                    author=recipe.author)
             subscription = 'on'
         except Exception:
             subscription = 'off'
@@ -70,7 +70,6 @@ class RecipeView:
                'recipes/singlePage.html',
                {'recipes': recipes,
                 })
-
 
 
 class ApiIngredient(APIView):

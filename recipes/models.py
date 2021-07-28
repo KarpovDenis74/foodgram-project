@@ -116,6 +116,7 @@ class Favorite(models.Model):
         verbose_name = 'Объект избранного'
         verbose_name_plural = 'Объекты избранного'
 
+
 class Subscription(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,

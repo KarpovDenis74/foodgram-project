@@ -1,21 +1,18 @@
-from os import EX_SOFTWARE
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404, render
-from recipes.models import Favorite, Ingredient, Subscription
-from recipes.models import (Ingredient, Recipe, RecipeIngredient)
-from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+from recipes.models import (Favorite, Ingredient, Subscription,
+                            Recipe)
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from api.serialisers import (IngredientSerializer,
-                                 SubscriptionSerializer)
+                             )
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
-from django.contrib.auth.decorators import login_required
 
 User = get_user_model()
+
 
 class Api(APIView):
     @api_view(('GET',))
@@ -39,7 +36,7 @@ class Api(APIView):
         if request.method == 'POST':
             try:
                 subscription = Subscription(user=request.user,
-                             author=author)
+                                            author=author)
                 subscription.save()
             except Exception:
                 context = {'context': 'False'}
@@ -51,7 +48,6 @@ class Api(APIView):
         except Exception:
             pass
         return Response(context, status=status.HTTP_200_OK)
-
 
     @login_required
     @api_view(('POST', 'DELETE'))
@@ -74,6 +70,3 @@ class Api(APIView):
         except Exception:
             pass
         return Response(context, status=status.HTTP_200_OK)
-
-
-            

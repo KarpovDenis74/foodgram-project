@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from recipes.models import Recipe, Ingredient, MealTime, RecipeIngredient, Subscription
+from recipes.models import (Recipe, Ingredient,
+                            MealTime, RecipeIngredient,
+                            Subscription)
 import re
 from django.db import transaction
 
@@ -19,6 +21,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subscription
         fields = ['user', 'author']
+
 
 class MealTimeSerializer(serializers.ModelSerializer):
     name_english = serializers.CharField(max_length=128)

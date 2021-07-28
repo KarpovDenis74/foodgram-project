@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'sorl.thumbnail',
     'rest_framework', ]
-DEVELOPER_APP = ['captcha', 
+DEVELOPER_APP = ['captcha',
                  'users',
                  'recipes',
                  'api', ]
