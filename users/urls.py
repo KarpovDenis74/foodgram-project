@@ -2,8 +2,11 @@ from django.urls import path
 from users import views
 from django.contrib.auth import get_user_model
 from django.urls.conf import include
+from django.contrib.auth import views as view_auth
+
 
 User = get_user_model()
+
 
 urlpatterns = [
     path("auth/signup/", views.SignUp.as_view(), name="signup"),

@@ -1,6 +1,9 @@
 from django.shortcuts import render
+from django.utils.translation import ungettext
 from django.views.generic import ListView
-from recipes.models import (Ingredient, Recipe)
+from recipes.models import (Ingredient, Recipe, 
+                            RecipeIngredient, Subscription,
+                            Favorite)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -11,13 +14,9 @@ from recipes.serialisers import (IngredientSerializer,
                                  FormToRecipeSerializer)
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
+from django.shortcuts import get_object_or_404
 
 User = get_user_model()
-
-
-class RecipeViewList(ListView):
-    template_name = 'recipes/index.html'
-    model = Recipe
 
 
 class RecipeView:
@@ -37,6 +36,41 @@ class RecipeView:
                            'errors': recipe_form.errors,
                            'recipe_form': recipe_form})
         return redirect('index')
+
+    def list(request):
+        recipes = Recipe.objects.all()
+        return render(request,
+                      'recipes/index.html',
+                      {'recipes': recipes})
+
+    def view(request, recipe_id):
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        ingredients = RecipeIngredient.objects.select_related('ingredient').filter(recipes=recipe)
+        try:
+            subscription = Subscription.objects.get(user=request.user, author=recipe.author)
+            subscription = 'on'
+        except Exception:
+            subscription = 'off'
+        try:
+            favorite = Favorite.objects.get(user=request.user, recipe=recipe)
+            favorite = 'on'
+        except Exception:
+            favorite = 'off'
+        print(f'favorite = {favorite}')
+        return render(request,
+                      'recipes/singlePage.html',
+                      {'recipe': recipe,
+                       'ingredients': ingredients,
+                       'subscription': subscription,
+                       'favorite': favorite})
+
+    def subscriptions(request):
+        recipes = get_object_or_404(Recipe, author=request.user)
+        render(request,
+               'recipes/singlePage.html',
+               {'recipes': recipes,
+                })
+
 
 
 class ApiIngredient(APIView):

@@ -25,7 +25,7 @@ class SignUp(CreateView):
     template_name = 'users/reg.html'
     form_class = CreationForm
     success_url = reverse_lazy(
-        "login")
+        "users:login")
 
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
@@ -44,6 +44,7 @@ class SignUp(CreateView):
                 fail_silently=False,
             )
         except Exception as e:
+            print('Письмо о регистрации пользователя не отправлено')
             users_logger.error('Регистрация пользователя username: '
                                f'{self.object.username}.'
                                'Ошибка отправки письма на адрес: '
@@ -71,13 +72,13 @@ def users_admin_edit(request, user_id):
                       )
     user = form.save()
 
-    return redirect('users_admin')
+    return redirect('users:users_admin')
 
 
 @login_required
 def users_admin_delete(request, user_id):
     if not request.user.is_admin:
-        return redirect('index')
+        return redirect('recipes:index')
     user = get_object_or_404(User, pk=user_id)
     user.delete()
-    return redirect('users_admin')
+    return redirect('users:users_admin')

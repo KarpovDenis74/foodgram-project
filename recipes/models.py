@@ -84,8 +84,12 @@ class RecipeMealTime(models.Model):
 
 
 class RecipeIngredient(models.Model):
-    recipes = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    recipes = models.ForeignKey(Recipe,
+                                on_delete=models.CASCADE,
+                                related_name='recipe')
+    ingredient = models.ForeignKey(Ingredient,
+                                   on_delete=models.CASCADE,
+                                   related_name='ingredient')
     amount = models.FloatField(verbose_name="Количество",
                                validators=[MinValueValidator(0)])
 
@@ -101,16 +105,26 @@ class Favorite(models.Model):
     user = models.ForeignKey(User,
                              on_delete=models.CASCADE,
                              verbose_name='Пользователь',
-                             related_name='favorite')
+                             related_name='favorite_user')
     recipe = models.ForeignKey(Recipe,
                                on_delete=models.CASCADE,
                                verbose_name='Рецепт',
-                               related_name='favorite')
+                               related_name='favorite_recipe')
 
     class Meta:
-        constraints = ([models.UniqueConstraint(
-                       fields=('user', 'recipe'),
-                       name='unique_favorite_user_recipe',
-                       )])
+        unique_together = ("user", "recipe")
         verbose_name = 'Объект избранного'
         verbose_name_plural = 'Объекты избранного'
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             verbose_name='Пользователь',
+                             related_name='subscription_user')
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               verbose_name='Рецепт',
+                               related_name='Subscription_author')
+
+    class Meta:
+        unique_together = ("user", "author")
