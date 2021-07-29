@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Рецепты{% endblock %}
-
+{% block title %}Избранное{% endblock %}
 {% load static %}
 {% block css %}
     <link rel="stylesheet" href="{% static 'pages/index.css' %}">
@@ -11,7 +10,7 @@
 <main class="main container">
   {% csrf_token %}
   <div class="main__header">
-    <h1 class="main__title">{% block head %}Рецепты{% endblock %}</h1>
+    <h1 class="main__title">{% block head %}Избранное{% endblock %}</h1>
     {% include 'tags.html' %}
   </div>
   <div class="card-list">
@@ -20,37 +19,37 @@
       <!-- Отображение картинки -->
       {% load thumbnail %}
       {% thumbnail recipe.image "400x400" crop="center" upscale=True as im %}
-        <a href="{% url 'recipes:view_recipe' recipe_id=recipe.pk %}" class="link" target="_blank"><img src="{{ im.url }}" alt="Изображение пока не загружено автором" class="card__image"></a>
+      <a href="{% url 'recipes:view_recipe' recipe_id=recipe.pk %}" class="link" target="_blank"><img src="{{ im.url }}"
+          alt="Изображение пока не загружено автором" class="card__image"></a>
       {% endthumbnail %}
       <div class="card__body">
         <a class="card__title link" href="#" target="_blank">{{ recipe.name }}</a>
         <ul class="card__items">
-          <li class="card__item"><span class="badge badge_style_green">Обед</span></li>
-          <li class="card__item"><span class="badge badge_style_orange">Завтрак</span></li>
-          <li class="card__item"><span class="badge badge_style_purple">Ужин</span></li>
+            <li class="card__item"><span class="badge badge_style_green">Обед</span></li>
+            <li class="card__item"><span class="badge badge_style_orange">Завтрак</span></li>
+            <li class="card__item"><span class="badge badge_style_purple">Ужин</span></li>
         </ul>
         <div class="card__items card__items_column">
-          <p class="card__text"><span class="icon-time"></span> {{ recipe.time_cooking }} мин.</p>
-          <p class="card__text"><span class="icon-user"></span> <a href="#" style="color: black">{{ recipe.name.get_full_name }} ({{ recipe.author.username }})</a></p>
+            <p class="card__text"><span class="icon-time"></span> {{ recipe.time_cooking }} мин.</p>
+            <p class="card__text"><span class="icon-user"></span> {{ recipe.name.get_full_name }} ({{ recipe.author.username }})</p>
         </div>
       </div>
       <div class="card__footer">
-        <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
-        {% if user.is_authenticated %}
-          {% if favorite is None %}
-            <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
+          <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
+          {% if user.is_authenticated %}
+            {% if favorite is None %}
+              <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
+            {% endif %}
           {% endif %}
-        {% endif %}
       </div>
     </div>
-  {% endfor %}
-  </div>
-
+    {% endfor %}
+    
 {% if page.has_other_pages %}
-  {% include "paginator.html" with items=page paginator=paginator %}
+{% include "paginator.html" with items=page paginator=paginator %}
 {% endif %}
 
-</main>
+</main>\
 {% endblock %}
 {% block js %}
 <script src="{% static 'js/components/MainCards.js' %}"></script>
@@ -62,7 +61,7 @@
 
 {% if user.is_authenticated %}
 <script src="{% static 'js/components/Favorites.js' %}"></script>
-<script src="{% static 'indexAuth.js' %}"></script>
+<script src="{% static 'favorite.js' %}"></script>
 {% else %}
 <script src="{% static 'indexNotAuth.js' %}"></script>
 {% endif %}

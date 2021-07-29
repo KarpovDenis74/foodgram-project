@@ -1,3 +1,4 @@
+# from django.db.models.query import prefetch_related_objects
 from django.shortcuts import render
 from recipes.models import (Ingredient, Recipe,
                             RecipeIngredient, Subscription,
@@ -13,6 +14,8 @@ from recipes.serialisers import (IngredientSerializer,
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
 from django.shortcuts import get_object_or_404
+# from django.db.models import Count
+from django.core.paginator import Paginator
 
 User = get_user_model()
 
@@ -36,10 +39,19 @@ class RecipeView:
         return redirect('index')
 
     def list(request):
-        recipes = Recipe.objects.all()
+        tags = request.GET.getlist("tags")
+        if tags:
+            recipes = (
+                Recipe.objects.filter(tag_recipe_recipe__tag__title__in=tags)
+            ).distinct()
+        else:
+            recipes = Recipe.objects.all()
+        paginator = Paginator(recipes, 3)
+        page_number = request.GET.get('page')
+        page = paginator.get_page(page_number)
         return render(request,
                       'recipes/index.html',
-                      {'recipes': recipes})
+                      {'page': page, 'paginator': paginator})
 
     def view(request, recipe_id):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
@@ -65,11 +77,22 @@ class RecipeView:
                        'favorite': favorite})
 
     def subscriptions(request):
-        recipes = get_object_or_404(Recipe, author=request.user)
-        render(request,
-               'recipes/singlePage.html',
-               {'recipes': recipes,
-                })
+        authors = User.objects.filter(subscription_author__user=request.user)
+        print(f'authors = {authors}')
+        recipes = Recipe.objects.filter(author__in=authors)
+        return render(request,
+                      'recipes/index.html',
+                      {'recipes': recipes, }
+                      )
+
+    def favorites(request):
+        recipes = Recipe.objects.filter(favorite_recipe__user=request.user)
+        paginator = Paginator(recipes, 3)
+        page_number = request.GET.get('page')
+        page = paginator.get_page(page_number)
+        return render(request,
+                      'recipes/favorite.html',
+                      {'page': page, 'paginator': paginator})
 
 
 class ApiIngredient(APIView):
