@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from dotenv import load_dotenv  # библиотека чтения переменных среды
+from distutils.util import strtobool
+
 load_dotenv()                   # получаем переменный из файла .env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,10 +27,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY', '')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = strtobool(os.getenv('DGANGO_DEBUG', 'False'))
 
 ALLOWED_HOSTS = ['*',
                  '84.252.142.102',

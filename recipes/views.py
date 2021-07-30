@@ -76,6 +76,7 @@ class RecipeView:
                        'subscription': subscription,
                        'favorite': favorite})
 
+    @login_required
     def subscriptions(request):
         authors = User.objects.filter(subscription_author__user=request.user)
         print(f'authors = {authors}')
@@ -85,6 +86,7 @@ class RecipeView:
                       {'recipes': recipes, }
                       )
 
+    @login_required
     def favorites(request):
         recipes = Recipe.objects.filter(favorite_recipe__user=request.user)
         paginator = Paginator(recipes, 3)
