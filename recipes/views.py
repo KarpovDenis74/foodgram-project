@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from recipes.models import (Ingredient, Recipe,
                             RecipeIngredient, Subscription,
-                            Favorite)
+                            Favorite, )
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -16,6 +16,8 @@ from rest_framework.renderers import JSONRenderer
 from django.shortcuts import get_object_or_404
 # from django.db.models import Count
 from django.core.paginator import Paginator
+from recipes.utils import (get_recipes_full,
+                           get_actual_tags)
 
 User = get_user_model()
 
@@ -39,19 +41,24 @@ class RecipeView:
         return redirect('index')
 
     def list(request):
-        tags = request.GET.getlist("tags")
-        if tags:
-            recipes = (
-                Recipe.objects.filter(tag_recipe_recipe__tag__title__in=tags)
-            ).distinct()
-        else:
-            recipes = Recipe.objects.all()
-        paginator = Paginator(recipes, 3)
+        seted_tags_pk, tags = get_actual_tags(request.GET)
+        recipes = (Recipe.objects
+                   .filter(meal_time__in=seted_tags_pk)
+                   .select_related('author')
+                   .prefetch_related('meal_time')
+                   .distinct()
+                   )
+        recipes = get_recipes_full(request, recipes)
+        for recipe in recipes:
+            print(f'recipe = {recipe}')
+        paginator = Paginator(recipes, 12)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         return render(request,
                       'recipes/index.html',
-                      {'page': page, 'paginator': paginator})
+                      {'page': page, 'paginator': paginator,
+                       'tags': tags}
+                      )
 
     def view(request, recipe_id):
         recipe = get_object_or_404(Recipe, pk=recipe_id)

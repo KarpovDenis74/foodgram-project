@@ -16,7 +16,7 @@ class MealTime(models.Model):
                                     blank=False)
 
     def __str__(self):
-        return self.name_russian
+        return [self.name_english, self.name_russian]
 
 
 class Ingredient(models.Model):
@@ -55,7 +55,8 @@ class Recipe(models.Model):
     image = models.ImageField(upload_to='recipes/image/', blank=True,
                               verbose_name='Изображение готового блюда')
     slug = models.SlugField(max_length=150)
-    miel_time = models.ManyToManyField(MealTime,
+    meal_time = models.ManyToManyField(MealTime,
+                                       related_name='rmt',
                                        through="RecipeMealTime",
                                        through_fields=('recipes',
                                                        'meal_time'),
@@ -72,15 +73,21 @@ class Recipe(models.Model):
 
 
 class RecipeMealTime(models.Model):
-    recipes = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    meal_time = models.ForeignKey(MealTime, on_delete=models.CASCADE)
+    recipes = models.ForeignKey(Recipe,
+                                related_name='rmt_r',
+                                on_delete=models.CASCADE)
+    meal_time = models.ForeignKey(MealTime,
+                                  related_name='rmt_mt',
+                                  on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.recipes.name}: {self.meal_time.verbose_name}'
+        return f'{self.recipes.name}: {self.meal_time.name_english}'
 
     class Meta:
+        unique_together = ("recipes", "meal_time")
         verbose_name = 'Период приема шищи'
         verbose_name_plural = 'Периоды приема пищи'
+        ordering = ['-recipes']
 
 
 class RecipeIngredient(models.Model):
@@ -131,24 +138,24 @@ class Subscription(models.Model):
         unique_together = ("user", "author")
 
 
-class Tag(models.Model):
-    title = models.CharField(max_length=30, db_index=True)
+# class Tag(models.Model):
+#     title = models.CharField(max_length=30, db_index=True)
 
-    def __str__(self):
-        return self.title
+#     def __str__(self):
+#         return self.title
 
 
-class TagsRecipe(models.Model):
-    tag = models.ForeignKey(
-        Tag,
-        related_name="tag_recipe_tag",
-        on_delete=models.CASCADE
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        related_name="tag_recipe_recipe",
-        on_delete=models.CASCADE
-    )
+# class TagsRecipe(models.Model):
+#     tag = models.ForeignKey(
+#         Tag,
+#         related_name="tag_recipe_tag",
+#         on_delete=models.CASCADE
+#     )
+#     recipe = models.ForeignKey(
+#         Recipe,
+#         related_name="tag_recipe_recipe",
+#         on_delete=models.CASCADE
+#     )
 
-    class Meta:
-        unique_together = ("tag", "recipe")
+#     class Meta:
+#         unique_together = ("tag", "recipe")
