@@ -1,9 +1,17 @@
 from django.contrib import admin
-from recipes.models import Ingredient, Recipe, RecipeIngredient, MealTime
+from recipes.models import (Ingredient, Recipe,
+                            RecipeIngredient, MealTime,
+                            RecipeMealTime)
 
 
 class MembershipInline(admin.TabularInline):
     model = RecipeIngredient
+    min_num = 1
+    extra = 0
+
+
+class MembershipInline1(admin.TabularInline):
+    model = RecipeMealTime
     min_num = 1
     extra = 0
 
@@ -16,8 +24,7 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
-    inlines = [MembershipInline, ]
-
+    inlines = [MembershipInline, MembershipInline1]
     search_fields = ("name",)
     list_filter = ("time_cooking",)
     empty_value_display = "-пусто-"
