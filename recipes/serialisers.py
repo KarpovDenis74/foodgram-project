@@ -172,17 +172,21 @@ class FormToRecipeSerializer:
                                 time_cooking=self.time_cooking,
                                 image=self.image)
                 recipe.save()
+                print('рецепт сохранен')
                 for meal_time in self.meal_time:
-                    recipe.miel_time.add(meal_time)
+                    recipe.meal_time.add(meal_time)
+                print(' тэги сохранены')
                 for ingr_number in range(0, len(self.ingredients)):
                     recipe_ingredient = RecipeIngredient(
                         recipes=recipe,
                         ingredient=self.ingredients[ingr_number][0],
                         amount=self.ingredients[ingr_number][1])
                     recipe_ingredient.save()
+                print(' инградиенты  сохранены')
         except Exception:
             self.errors['form_error'] = (
                 'Рецепт не может быть сохранен.'
                 ' Заполните, пожалуста, данные формы.')
+            print(self.errors)
             return bool(False)
         return bool(True)
