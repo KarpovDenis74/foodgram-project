@@ -24,13 +24,24 @@
       {% endthumbnail %}
       <div class="card__body">
         <a class="card__title link" href="{% url 'recipes:view_recipe' recipe_id=recipe.pk %}" target="_blank">{{ recipe.name }}</a>
-        <ul class="card__items">{{ tags.tags }}
-          <li class="card__item">
-            <span class="badge{% if 'lunch' in tags.tags %} badge_style_green{% endif %}">Обед</span></li>
-          <li class="card__item">
-            <span class="badge {% if 'breakfast' in tags.tags %} badge_style_orange{% endif %}">Завтрак</span></li>
-          <li class="card__item">
-            <span class="badge {% if 'dinner' in tags.tags %} badge_style_purple{% endif %}">Ужин</span></li>
+        <ul class="card__items">
+          {% for tag in tags %}
+            {% if tag.name_en == 'lunch' %}
+              <li class="card__item">
+                <span class="badge{% if tag.enabled %} badge_style_green{% endif %}">{{ tag.name_ru }}</span>
+              </li>
+            {% endif %}
+            {% if tag.name_en == 'breakfast' %}
+              <li class="card__item">
+                <span class="badge {% if tag.enabled %} badge_style_orange{% endif %}">{{ tag.name_ru }}</span>
+              </li>
+            {% endif %}
+            {% if tag.name_en == 'dinner' %}
+              <li class="card__item">
+                <span class="badge {% if tag.enabled %} badge_style_purple{% endif %}">{{ tag.name_ru }}</span>
+              </li>
+            {% endif %}
+          {% endfor %}
         </ul>
         <div class="card__items card__items_column">
           <p class="card__text"><span class="icon-time"></span> {{ recipe.time_cooking }} мин.</p>
@@ -40,7 +51,8 @@
       <div class="card__footer">
         <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
         {% if user.is_authenticated %}
-          {% if favorite.favotite %}
+          
+          {% if favorite == 'on' %}
             <button class="button button_style_none" disabled="True" name="favorites"><span class="icon-favorite icon-favorite_active"></span></button>
           {% else %}
           <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>

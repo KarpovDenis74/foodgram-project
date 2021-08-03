@@ -51,7 +51,7 @@ class RecipeView:
         recipes = get_recipes_full(request, recipes)
         for recipe in recipes:
             print(f'recipe = {recipe}')
-        paginator = Paginator(recipes, 12)
+        paginator = Paginator(recipes, 3)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         return render(request,
@@ -95,13 +95,16 @@ class RecipeView:
 
     @login_required
     def favorites(request):
+        seted_tags_pk, tags = get_actual_tags(request.GET)
         recipes = Recipe.objects.filter(favorite_recipe__user=request.user)
+        recipes = get_recipes_full(request, recipes)
         paginator = Paginator(recipes, 3)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         return render(request,
                       'recipes/favorite.html',
-                      {'page': page, 'paginator': paginator})
+                      {'page': page, 'paginator': paginator,
+                       'tags': tags})
 
 
 class ApiIngredient(APIView):

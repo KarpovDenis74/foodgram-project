@@ -14,7 +14,7 @@
     {% include 'tags.html' %}
   </div>
   <div class="card-list">
-    {% for recipe in page %}
+    {% for recipe, favorite, tags in page %}
     <div class="card" data-id="{{ recipe.pk }}">
       <!-- Отображение картинки -->
       {% load thumbnail %}
@@ -35,15 +35,19 @@
         </div>
       </div>
       <div class="card__footer">
-          <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
-          {% if user.is_authenticated %}
-            {% if favorite is None %}
-              <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
-            {% endif %}
+        <button class="button button_style_light-blue" name="purchases" data-out><span class="icon-plus button__icon"></span>Добавить в покупки</button>
+        {% if user.is_authenticated %}
+          {% if favorite == 'on' %}
+            <button class="button button_style_none" disabled="True" name="favorites"><span
+                class="icon-favorite icon-favorite_active"></span></button>
+          {% else %}
+            <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
           {% endif %}
+        {% endif %}
       </div>
     </div>
     {% endfor %}
+  </div>
     
 {% if page.has_other_pages %}
 {% include "paginator.html" with items=page paginator=paginator %}

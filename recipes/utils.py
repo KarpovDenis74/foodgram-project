@@ -31,25 +31,30 @@ def get_actual_tags(request_get):
 def get_recipes_full(requests, recipes):
     recipes_full = []
     for recipe in recipes:
-        recipe_add_property = {}
-        tags_add_property = {}
-
+        favorite = ''
+        _tags = []
         favorites = list(Favorite.objects.filter(recipe=recipe,
                                                  user=requests.user))
         for favorite in favorites:
             print(f'favorite = {favorite}')
         if len(favorites) > 0:
-            recipe_add_property['favorite'] = bool(True)
+            favorite = 'on'
         else:
-            recipe_add_property['favorite'] = False
-        tags = MealTime.objects.filter(rmt=recipe)
-        if tags is not None:
-            tags_add_property['tags'] = []
-            for tag in tags:
-                tags_add_property['tags'].append(tag.name_english)
-        else:
-            tags_add_property['tags'].append('')
-        recipes_full.append([recipe, recipe_add_property, tags_add_property])
-        for recipe in recipes_full:
-            print(f'recipes_full = {recipe}')
+            favorite = 'off'
+        seted_tags = list(MealTime.objects.filter(rmt=recipe))
+        all_tags = list(MealTime.objects.all())
+        if seted_tags is not None:
+            for tag in all_tags:
+                if tag in seted_tags:
+                    _tags.append({'name_en': tag.name_english,
+                                  'name_ru': tag.name_russian,
+                                  'enabled': True})
+                else:
+                    _tags.append({'name_en': tag.name_english,
+                                  'name_ru': tag.name_russian,
+                                  'enabled': False})
+
+        recipes_full.append([recipe, favorite, _tags])
+    for recipe in recipes_full:
+        print(f'recipes_full = {recipe}')
     return recipes_full

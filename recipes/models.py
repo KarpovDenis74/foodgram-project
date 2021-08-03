@@ -16,7 +16,7 @@ class MealTime(models.Model):
                                     blank=False)
 
     def __str__(self):
-        return [self.name_english, self.name_russian]
+        return self.name_english
 
 
 class Ingredient(models.Model):
