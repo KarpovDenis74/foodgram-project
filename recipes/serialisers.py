@@ -172,65 +172,7 @@ class FormToRecipeSerializer:
         if not self.is_valid:
             return bool(False)
         try:
-            with transaction.atomic():
-                if self.pk is None:
-                    recipe = Recipe(name=self.name,
-                                    author=self.request.user,
-                                    text=self.description,
-                                    time_cooking=self.time_cooking,
-                                    image=self.image)
-                    recipe.save()
-                    print('рецепт сохранен')
-                else:
-                    recipe = Recipe(pk=self.pk,
-                                    name=self.name,
-                                    author=self.request.user,
-                                    text=self.description,
-                                    time_cooking=self.time_cooking,
-                                    pub_date=timezone.datetime.now(),
-                                    image=self.image)
-                    recipe.save()
-                    # recipe = Recipe.objects.filter(pk=self.pk).update(
-                    #         name=self.name,
-                    #         text=self.description,
-                    #         time_cooking=self.time_cooking,
-                    #         image=self.image)
-                    print(f'рецепт изменен = {recipe}')
-                if self.pk is None:
-                    for meal_time in self.meal_time:
-                        recipe.meal_time.add(meal_time)
-                    print(' тэги сохранены')
-                else:
-                    recipe = Recipe.objects.filter(pk=self.pk).first()
-                    del_times = RecipeMealTime.objects.filter(recipes=recipe)
-                    print(f'del_times={del_times}')
-                    for del_time in del_times:
-                        del_time.delete()
-                    for meal_time in self.meal_time:
-                        recipe.meal_time.add(meal_time)
-                    print(' тэги изменены')
-                if self.pk is None:
-                    for ingr_number in range(0, len(self.ingredients)):
-                        ingredient = self.ingredients[ingr_number][0]
-                        amount = self.ingredients[ingr_number][1]
-                        (RecipeIngredient
-                            .objects
-                            .get_or_create(recipes=recipe,
-                                           ingredient=ingredient,
-                                           amount=amount))
-                    print(' инградиенты  сохранены')
-                else:
-                    recipe = Recipe.objects.filter(pk=self.pk).first()
-                    del_ingredients = (RecipeIngredient.objects
-                                                       .filter(recipes=recipe))
-                    for ingredient in del_ingredients:
-                        ingredient.delete()
-                    for ingr_number in range(0, len(self.ingredients)):
-                        RecipeIngredient.objects.get_or_create(
-                            recipes=recipe,
-                            ingredient=self.ingredients[ingr_number][0],
-                            amount=self.ingredients[ingr_number][1])
-                    print(' инградиенты  изменены')
+            self._save_transaction()
         except Exception:
             self.errors['form_error'] = (
                 'Рецепт не может быть сохранен.'
@@ -238,3 +180,64 @@ class FormToRecipeSerializer:
             print(self.errors)
             return bool(False)
         return bool(True)
+
+    def _save_transaction(self):
+        with transaction.atomic():
+            if self.pk is None:
+                recipe = Recipe(name=self.name,
+                                author=self.request.user,
+                                text=self.description,
+                                time_cooking=self.time_cooking,
+                                image=self.image)
+                recipe.save()
+                print('рецепт сохранен')
+            else:
+                recipe = Recipe(pk=self.pk,
+                                name=self.name,
+                                author=self.request.user,
+                                text=self.description,
+                                time_cooking=self.time_cooking,
+                                pub_date=timezone.datetime.now(),
+                                image=self.image)
+                recipe.save()
+                # recipe = Recipe.objects.filter(pk=self.pk).update(
+                #         name=self.name,
+                #         text=self.description,
+                #         time_cooking=self.time_cooking,
+                #         image=self.image)
+                print(f'рецепт изменен = {recipe}')
+            if self.pk is None:
+                for meal_time in self.meal_time:
+                    recipe.meal_time.add(meal_time)
+                print(' тэги сохранены')
+            else:
+                recipe = Recipe.objects.filter(pk=self.pk).first()
+                del_times = RecipeMealTime.objects.filter(recipes=recipe)
+                print(f'del_times={del_times}')
+                for del_time in del_times:
+                    del_time.delete()
+                for meal_time in self.meal_time:
+                    recipe.meal_time.add(meal_time)
+                print(' тэги изменены')
+            if self.pk is None:
+                for ingr_number in range(0, len(self.ingredients)):
+                    ingredient = self.ingredients[ingr_number][0]
+                    amount = self.ingredients[ingr_number][1]
+                    (RecipeIngredient
+                        .objects
+                        .get_or_create(recipes=recipe,
+                                       ingredient=ingredient,
+                                       amount=amount))
+                print(' инградиенты  сохранены')
+            else:
+                recipe = Recipe.objects.filter(pk=self.pk).first()
+                del_ingredients = (RecipeIngredient.objects
+                                                   .filter(recipes=recipe))
+                for ingredient in del_ingredients:
+                    ingredient.delete()
+                for ingr_number in range(0, len(self.ingredients)):
+                    RecipeIngredient.objects.get_or_create(
+                        recipes=recipe,
+                        ingredient=self.ingredients[ingr_number][0],
+                        amount=self.ingredients[ingr_number][1])
+                print(' инградиенты  изменены')
