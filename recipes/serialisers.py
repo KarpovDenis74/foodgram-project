@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from recipes.models import (Recipe, Ingredient,
                             MealTime, RecipeIngredient,
@@ -5,6 +6,7 @@ from recipes.models import (Recipe, Ingredient,
 import re
 from django.db import transaction
 from django.utils import timezone
+from django.conf import settings
 
 
 class MealTimeSerializer(serializers.ModelSerializer):
@@ -44,6 +46,10 @@ class FormToRecipeSerializer:
     """
     def __init__(self, request, pk=None):
         self.pk = pk
+        if pk is None:
+            self.IS_EDIT = False
+        else:
+            self.IS_EDIT = True
         self.ingredients = []
         self.meal_time = []
         self.errors = {}
@@ -51,7 +57,7 @@ class FormToRecipeSerializer:
         self.description = self.request.POST.get('description')
         self.name = self.request.POST.get('name')
         self.time_cooking = self.request.POST.get('time_cooking')
-        self.image = ''
+        self.image = self.request.FILES.get('file')
         self.keys_post = self.request.POST.keys()
         # маска ключа имени инградиента в POST-ответе
         self.name_ingredient_mask = 'nameIngredient_'
@@ -154,22 +160,23 @@ class FormToRecipeSerializer:
         return bool(True)
 
     def image_exist(self):
-        try:
-            self.image = self.request.FILES.get('file')
-        except Exception:
-            self.image = None
+        if not self.IS_EDIT:
+            if self.image is None:
+                self.image = settings.DEFAULT_IMAGE
+            return bool(True)
+        if self.image is not None:
+            return bool(True)
+        recipe = get_object_or_404(Recipe, pk=self.pk)
+        self.image = recipe.image or settings.DEFAULT_IMAGE
         return bool(True)
 
-    def is_valid(self):
-        return (self.name_exist()
+    def save(self):
+        if not (self.name_exist()
                 and self.meal_time_exist()
                 and self.ingredient_and_amount_exist()
                 and self.time_cooking_exist()
                 and self.description_exist()
-                and self.image_exist())
-
-    def save(self):
-        if not self.is_valid:
+                and self.image_exist()):
             return bool(False)
         try:
             self._save_transaction()
@@ -177,13 +184,12 @@ class FormToRecipeSerializer:
             self.errors['form_error'] = (
                 'Рецепт не может быть сохранен.'
                 ' Заполните, пожалуста, данные формы.')
-            print(self.errors)
             return bool(False)
         return bool(True)
 
     def _save_transaction(self):
         with transaction.atomic():
-            if self.pk is None:
+            if not self.IS_EDIT:
                 recipe = Recipe(name=self.name,
                                 author=self.request.user,
                                 text=self.description,
@@ -206,20 +212,19 @@ class FormToRecipeSerializer:
                 #         time_cooking=self.time_cooking,
                 #         image=self.image)
                 print(f'рецепт изменен = {recipe}')
-            if self.pk is None:
+            if not self.IS_EDIT:
                 for meal_time in self.meal_time:
                     recipe.meal_time.add(meal_time)
                 print(' тэги сохранены')
             else:
                 recipe = Recipe.objects.filter(pk=self.pk).first()
                 del_times = RecipeMealTime.objects.filter(recipes=recipe)
-                print(f'del_times={del_times}')
                 for del_time in del_times:
                     del_time.delete()
                 for meal_time in self.meal_time:
                     recipe.meal_time.add(meal_time)
                 print(' тэги изменены')
-            if self.pk is None:
+            if not self.IS_EDIT:
                 for ingr_number in range(0, len(self.ingredients)):
                     ingredient = self.ingredients[ingr_number][0]
                     amount = self.ingredients[ingr_number][1]

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from recipes.models import (Ingredient, MealTime, Recipe,
+from recipes.models import (Ingredient, Recipe,
                             RecipeIngredient, Subscription,
                             Favorite, )
 from django.contrib.auth import get_user_model
@@ -42,7 +42,6 @@ class RecipeView:
 
     def edit(request, recipe_id):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
-        print(f'recipe = {recipe}')
         if recipe.author != request.user:
             return redirect('recipes:view_recipe', recipe_id=recipe_id)
         context = {'title': 'Редактирование рецепта',
@@ -51,8 +50,7 @@ class RecipeView:
         ingredients = (RecipeIngredient.objects
                                        .filter(recipes=recipe)
                                        .select_related('ingredient'))
-        tags = MealTime.objects.filter(rmt_mt__recipes=recipe)
-        print(f'tags = {tags}')
+        # tags = MealTime.objects.filter(rmt_mt__recipes=recipe)
         file = request.FILES or None,
         if not request.POST:
             return render(request,
@@ -62,13 +60,6 @@ class RecipeView:
                            'ingredients': ingredients,
                            'file': file})
         recipe_form = FormToRecipeSerializer(request, recipe_id)
-        if not recipe_form.is_valid():
-            return render(request,
-                          'recipes/formChangeRecipe.html',
-                          {'context': context,
-                           'errors': recipe_form.errors,
-                           'recipe_form': recipe_form,
-                           'recipe': recipe})
         if not recipe_form.save():
             return render(request,
                           'recipes/formChangeRecipe.html',
@@ -111,7 +102,6 @@ class RecipeView:
             favorite = 'on'
         except Exception:
             favorite = 'off'
-        print(f'favorite = {favorite}')
         return render(request,
                       'recipes/singlePage.html',
                       {'recipe': recipe,
@@ -122,7 +112,6 @@ class RecipeView:
     @login_required
     def subscriptions(request):
         authors = User.objects.filter(subscription_author__user=request.user)
-        print(f'authors = {authors}')
         recipes = Recipe.objects.filter(author__in=authors)
         return render(request,
                       'recipes/index.html',

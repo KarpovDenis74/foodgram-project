@@ -3,6 +3,7 @@ _source_code/
 TZ/
 media/
 static/
+.vscode/
 
 
 # Byte-compiled / optimized / DLL files
