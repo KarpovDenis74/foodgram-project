@@ -1,6 +1,5 @@
-# from django.db.models.query import prefetch_related_objects
 from django.shortcuts import render
-from recipes.models import (Ingredient, Recipe,
+from recipes.models import (Ingredient, MealTime, Recipe,
                             RecipeIngredient, Subscription,
                             Favorite, )
 from django.contrib.auth import get_user_model
@@ -26,7 +25,8 @@ class RecipeView:
     @login_required
     def new(request):
         context = {'title': 'Создание рецепта',
-                   'button_name': 'Создать рецепт'}
+                   'button_name': 'Создать рецепт',
+                   'is_edit': False}
         if not request.POST:
             return render(request,
                           'recipes/formRecipe.html',
@@ -40,6 +40,44 @@ class RecipeView:
                            'recipe_form': recipe_form})
         return redirect('index')
 
+    def edit(request, recipe_id):
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        print(f'recipe = {recipe}')
+        if recipe.author != request.user:
+            return redirect('recipes:view_recipe', recipe_id=recipe_id)
+        context = {'title': 'Редактирование рецепта',
+                   'button_name': 'Сохранить',
+                   'is_edit': True}
+        ingredients = (RecipeIngredient.objects
+                                       .filter(recipes=recipe)
+                                       .select_related('ingredient'))
+        tags = MealTime.objects.filter(rmt_mt__recipes=recipe)
+        print(f'tags = {tags}')
+        file = request.FILES or None,
+        if not request.POST:
+            return render(request,
+                          'recipes/formChangeRecipe.html',
+                          {'context': context,
+                           'recipe': recipe,
+                           'ingredients': ingredients,
+                           'file': file})
+        recipe_form = FormToRecipeSerializer(request, recipe_id)
+        if not recipe_form.is_valid():
+            return render(request,
+                          'recipes/formChangeRecipe.html',
+                          {'context': context,
+                           'errors': recipe_form.errors,
+                           'recipe_form': recipe_form,
+                           'recipe': recipe})
+        if not recipe_form.save():
+            return render(request,
+                          'recipes/formChangeRecipe.html',
+                          {'context': context,
+                           'errors': recipe_form.errors,
+                           'recipe_form': recipe_form,
+                           'recipe': recipe})
+        return redirect('index')
+
     def list(request):
         seted_tags_pk, tags = get_actual_tags(request.GET)
         recipes = (Recipe.objects
@@ -49,8 +87,6 @@ class RecipeView:
                    .distinct()
                    )
         recipes = get_recipes_full(request, recipes)
-        for recipe in recipes:
-            print(f'recipe = {recipe}')
         paginator = Paginator(recipes, 3)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)

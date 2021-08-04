@@ -106,6 +106,7 @@ class RecipeIngredient(models.Model):
     class Meta:
         verbose_name = 'Инградиент в рецепте'
         verbose_name_plural = 'Инградиенты в рецептах'
+        unique_together = ("recipes", "ingredient")
 
 
 class Favorite(models.Model):

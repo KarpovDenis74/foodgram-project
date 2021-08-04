@@ -35,8 +35,6 @@ def get_recipes_full(requests, recipes):
         _tags = []
         favorites = list(Favorite.objects.filter(recipe=recipe,
                                                  user=requests.user))
-        for favorite in favorites:
-            print(f'favorite = {favorite}')
         if len(favorites) > 0:
             favorite = 'on'
         else:
@@ -55,6 +53,4 @@ def get_recipes_full(requests, recipes):
                                   'enabled': False})
 
         recipes_full.append([recipe, favorite, _tags])
-    for recipe in recipes_full:
-        print(f'recipes_full = {recipe}')
     return recipes_full
