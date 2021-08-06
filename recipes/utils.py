@@ -33,12 +33,13 @@ def get_recipes_full(requests, recipes):
     for recipe in recipes:
         favorite = ''
         _tags = []
-        favorites = list(Favorite.objects.filter(recipe=recipe,
-                                                 user=requests.user))
-        if len(favorites) > 0:
-            favorite = 'on'
-        else:
-            favorite = 'off'
+        if requests.user.is_authenticated:
+            favorites = list(Favorite.objects.filter(recipe=recipe,
+                                                     user=requests.user))
+            if len(favorites) > 0:
+                favorite = 'on'
+            else:
+                favorite = 'off'
         seted_tags = list(MealTime.objects.filter(rmt=recipe))
         all_tags = list(MealTime.objects.all())
         if seted_tags is not None:
