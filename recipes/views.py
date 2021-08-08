@@ -26,18 +26,21 @@ class RecipeView:
     def new(request):
         context = {'title': 'Создание рецепта',
                    'button_name': 'Создать рецепт',
-                   'is_edit': False}
+                   'is_edit': False,
+                   }
         if not request.POST:
             return render(request,
                           'recipes/formRecipe.html',
-                          {'context': context})
+                          {'context': context,
+                           'recipe_new_active': True})
         recipe_form = FormToRecipeSerializer(request)
         if not recipe_form.save():
             return render(request,
                           'recipes/formRecipe.html',
                           {'context': context,
                            'errors': recipe_form.errors,
-                           'recipe_form': recipe_form})
+                           'recipe_form': recipe_form,
+                           'recipe_new_active': True})
         return redirect('index')
 
     def edit(request, recipe_id):
@@ -84,8 +87,28 @@ class RecipeView:
         return render(request,
                       'recipes/index.html',
                       {'page': page, 'paginator': paginator,
-                       'tags': tags}
+                       'tags': tags,
+                       'index_active': True}
                       )
+
+    def author(request, author_id):
+        author = get_object_or_404(User, pk=author_id)
+        seted_tags_pk, tags = get_actual_tags(request.GET)
+        recipes = (Recipe.objects
+                   .filter(meal_time__in=seted_tags_pk,
+                           author=author)
+                   .select_related('author')
+                   .prefetch_related('meal_time')
+                   .distinct()
+                   )
+        recipes = get_recipes_full(request, recipes)
+        paginator = Paginator(recipes, 3)
+        page_number = request.GET.get('page')
+        page = paginator.get_page(page_number)
+        context = {'page': page, 'paginator': paginator,
+                   'tags': tags,
+                   'author': author}
+        return render(request, 'recipes/authorRecipe.html', context)
 
     def view(request, recipe_id):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
@@ -110,12 +133,26 @@ class RecipeView:
                        'favorite': favorite})
 
     @login_required
+    def delete(request, recipe_id):
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        if request.user != recipe.author:
+            return redirect('recipes:view_recipe', recipe_id=recipe_id)
+        context = {'title': 'Удаление рецепта',
+                   'message': "Вы уверены, что хотите удалить рецепт?",
+                   'recipe': recipe}
+        if request.method != 'POST':
+            return render(request, 'recipes/checkPage.html', context)
+        Recipe.objects.get(pk=recipe_id).delete()
+        return redirect('index')
+
+    @login_required
     def subscriptions(request):
         authors = User.objects.filter(subscription_author__user=request.user)
         recipes = Recipe.objects.filter(author__in=authors)
         return render(request,
                       'recipes/index.html',
-                      {'recipes': recipes, }
+                      {'recipes': recipes,
+                       'subscriptions_active': True}
                       )
 
     @login_required
@@ -129,7 +166,13 @@ class RecipeView:
         return render(request,
                       'recipes/favorite.html',
                       {'page': page, 'paginator': paginator,
-                       'tags': tags})
+                       'tags': tags,
+                       'favorites_active': True})
+
+    def shop_list(request):
+        return render(request,
+                      'recipes/favorite.html',
+                      {'shop_list_active': True})
 
 
 class ApiIngredient(APIView):

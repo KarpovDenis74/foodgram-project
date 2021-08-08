@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'pages/index.css' %}">
+{% endblock %}
+{% block content %}
+{% load user_filters %}
+
+
+
+
+<main class="main container">
+  <div class="main__header">
+    <h1 class="main__title">{{ title }}</h1>
+  </div>
+  <div class="custom-center-block">
+    <div class="form-container">
+      <form class="form" method="post" action="{% url 'recipes:delete_recipe' recipe_id=recipe.pk %}"
+        enctype="multipart/form-data">
+        {% csrf_token %}
+        <h1 class="custom-text-block">{{ message }}</h1>
+      <div class="form__footer">
+        <button class="button button_style_blue">Сохранить</button>
+        <a style="margin-left: 2.5em" href="{% url 'recipes:edit_recipe' recipe_id=recipe.pk %}"
+          class="form__ingredient-link">НЕТ!!! вернуться</a>
+      </div>
+    </div>
+    </form>
+</div>
+  </div>
+
+
+</main>
+{% endblock %}

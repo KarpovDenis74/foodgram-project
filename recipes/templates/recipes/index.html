@@ -45,7 +45,7 @@
         </ul>
         <div class="card__items card__items_column">
           <p class="card__text"><span class="icon-time"></span> {{ recipe.time_cooking }} мин.</p>
-          <p class="card__text"><span class="icon-user"></span> <a href="#" style="color: black">{{ recipe.author.get_full_name }} ({{ recipe.author.username }})</a></p>
+          <p class="card__text"><span class="icon-user"></span> <a href="{% url 'recipes:author' author_id=recipe.author.pk %}" style="color: black">{{ recipe.author.get_full_name }} ({{ recipe.author.username }})</a></p>
         </div>
       </div>
       <div class="card__footer">
@@ -55,7 +55,7 @@
           {% if favorite == 'on' %}
             <button class="button button_style_none" disabled="True" name="favorites"><span class="icon-favorite icon-favorite_active"></span></button>
           {% else %}
-          <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
+            <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
           {% endif %}
         {% endif %}
       </div>
@@ -75,10 +75,15 @@
 <script src="{% static 'js/config/config.js' %}"></script>
 <script src="{% static 'js/components/CardList.js' %}"></script>
 <script src="{% static 'js/components/Header.js' %}"></script>
-<script src="{% static 'js/api/Api.js' %}"></script>ß
+<script src="{% static 'js/api/Api.js' %}"></script>
+
+
+<script src="{% static 'js/api/Api.js' %}"></script>
+
 
 {% if user.is_authenticated %}
 <script src="{% static 'js/components/Favorites.js' %}"></script>
+<script src="{% static 'js/components/Subscribe.js' %}"></script>
 <script src="{% static 'indexAuth.js' %}"></script>
 {% else %}
 <script src="{% static 'indexNotAuth.js' %}"></script>

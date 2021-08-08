@@ -13,7 +13,7 @@
     <div class="main__header">
         <h1 class="main__title">{{ context.title }}</h1>
     </div>
-    <div class="form-container">
+    <div class="form-container">    
         <form class="form" method="post" action="{% url 'recipes:edit_recipe' recipe_id=recipe.pk %}" enctype="multipart/form-data">
             {% csrf_token %}
             <span class="form__error">{{ errors.form_error }}</span>
@@ -99,7 +99,8 @@
                 </div>
             </div>
             <div class="form__footer">
-                <button class="button button_style_blue">Сохранить</button> <a style="margin-left: 2.5em" href="#" class="form__ingredient-link">Удалить</a>
+                <button class="button button_style_blue">Сохранить</button> 
+                <a style="margin-left: 2.5em" href="{% url 'recipes:delete_recipe' recipe_id=recipe.pk %}" class="form__ingredient-link">Удалить</a>
             </div>
         </form>
     </div>
