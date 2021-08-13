@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from recipes.models import (Ingredient, Recipe,
+from recipes.models import (Ingredient, MealTime, Recipe,
                             RecipeIngredient, Subscription,
-                            Favorite, )
+                            Favorite)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -45,6 +45,16 @@ class RecipeView:
 
     def edit(request, recipe_id):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
+        meal_time = MealTime.objects.filter(rmt_mt__recipes=recipe.pk)
+        meal_time_all = MealTime.objects.all()
+        tags = []
+        for tag in meal_time_all:
+            if tag in meal_time:
+                tags.append({'name': tag.name_english,
+                             'enabled': True})
+            else:
+                tags.append({'name': tag.name_english,
+                             'enabled': False})
         if recipe.author != request.user:
             return redirect('recipes:view_recipe', recipe_id=recipe_id)
         context = {'title': 'Редактирование рецепта',
@@ -61,7 +71,8 @@ class RecipeView:
                           {'context': context,
                            'recipe': recipe,
                            'ingredients': ingredients,
-                           'file': file})
+                           'file': file,
+                           'tags': tags})
         recipe_form = FormToRecipeSerializer(request, recipe_id)
         if not recipe_form.save():
             return render(request,
@@ -94,6 +105,11 @@ class RecipeView:
     def author(request, author_id):
         author = get_object_or_404(User, pk=author_id)
         seted_tags_pk, tags = get_actual_tags(request.GET)
+        try:
+            subscription = Subscription.objects.get(user=request.user,
+                                                    author=author)
+        except Exception:
+            subscription = False
         recipes = (Recipe.objects
                    .filter(meal_time__in=seted_tags_pk,
                            author=author)
@@ -107,7 +123,8 @@ class RecipeView:
         page = paginator.get_page(page_number)
         context = {'page': page, 'paginator': paginator,
                    'tags': tags,
-                   'author': author}
+                   'author': author,
+                   'subscription': subscription}
         return render(request, 'recipes/authorRecipe.html', context)
 
     def view(request, recipe_id):

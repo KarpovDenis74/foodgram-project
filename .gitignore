@@ -4,6 +4,7 @@ TZ/
 media/
 static/
 .vscode/
+.DS_Store
 
 
 # Byte-compiled / optimized / DLL files
