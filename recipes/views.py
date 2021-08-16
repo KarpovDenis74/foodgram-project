@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from recipes.utils import (get_recipes_full,
                            get_actual_tags)
+from django.db.models import Count
 
 User = get_user_model()
 
@@ -118,7 +119,7 @@ class RecipeView:
                    .distinct()
                    )
         recipes = get_recipes_full(request, recipes)
-        paginator = Paginator(recipes, 3)
+        paginator = Paginator(recipes, 1)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         context = {'page': page, 'paginator': paginator,
@@ -164,12 +165,33 @@ class RecipeView:
 
     @login_required
     def subscriptions(request):
-        authors = User.objects.filter(subscription_author__user=request.user)
-        recipes = Recipe.objects.filter(author__in=authors)
+        author_recipes = []
+        authors = (User
+                   .objects
+                   .filter(subscription_author__user=request.user)
+                   .annotate(recipes_count=Count('recipe_author'))
+                   )
+        for author in authors:
+            recipes = (Recipe
+                       .objects
+                       .filter(author=author)
+                       )
+            recipes_user_for_card = len(recipes)
+            if recipes_user_for_card > 3:
+                recipes = recipes[:3]
+            else:
+                recipes = recipes[:recipes_user_for_card]
+            author_recipes.append([author,
+                                   recipes,
+                                   ])
+        paginator = Paginator(author_recipes, 1)
+        page_number = request.GET.get('page')
+        page = paginator.get_page(page_number)
         return render(request,
-                      'recipes/index.html',
-                      {'recipes': recipes,
-                       'subscriptions_active': True}
+                      'recipes/myFollow.html',
+                      {'page': page,
+                       'paginator': paginator,
+                       }
                       )
 
     @login_required
@@ -177,7 +199,7 @@ class RecipeView:
         seted_tags_pk, tags = get_actual_tags(request.GET)
         recipes = Recipe.objects.filter(favorite_recipe__user=request.user)
         recipes = get_recipes_full(request, recipes)
-        paginator = Paginator(recipes, 3)
+        paginator = Paginator(recipes, 1)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         return render(request,
