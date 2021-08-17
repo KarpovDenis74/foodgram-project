@@ -44,6 +44,7 @@ class RecipeView:
                            'recipe_new_active': True})
         return redirect('index')
 
+    @login_required
     def edit(request, recipe_id):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
         meal_time = MealTime.objects.filter(rmt_mt__recipes=recipe.pk)
@@ -210,7 +211,7 @@ class RecipeView:
 
     def shop_list(request):
         return render(request,
-                      'recipes/favorite.html',
+                      'recipes/shopList.html',
                       {'shop_list_active': True})
 
 

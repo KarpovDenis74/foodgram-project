@@ -137,24 +137,13 @@ class Subscription(models.Model):
         unique_together = ("user", "author")
 
 
-# class Tag(models.Model):
-#     title = models.CharField(max_length=30, db_index=True)
+class ShopList(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             verbose_name='Пользователь')
+    recipe = models.ForeignKey(Recipe,
+                               on_delete=models.CASCADE,
+                               verbose_name='Рецепт')
 
-#     def __str__(self):
-#         return self.title
-
-
-# class TagsRecipe(models.Model):
-#     tag = models.ForeignKey(
-#         Tag,
-#         related_name="tag_recipe_tag",
-#         on_delete=models.CASCADE
-#     )
-#     recipe = models.ForeignKey(
-#         Recipe,
-#         related_name="tag_recipe_recipe",
-#         on_delete=models.CASCADE
-#     )
-
-#     class Meta:
-#         unique_together = ("tag", "recipe")
+    class Meta:
+        unique_together = ("user", "recipe")

@@ -10,4 +10,6 @@ urlpatterns = [
          name="subscriptions"),
     path('v1/favorites/<int:recipe_id>/', views.Api.set_favorites,
          name="favorites"),
+    path('v1/purchases/<int:recipe_id>/', views.Api.set_purchases,
+         name="purchases"),
 ]

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from recipes.models import (Favorite, Ingredient, Subscription,
-                            Recipe)
+                            Recipe, ShopList)
 from django.contrib.auth.decorators import login_required
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -53,7 +53,6 @@ class Api(APIView):
     @api_view(('POST', 'DELETE'))
     @renderer_classes((JSONRenderer,))
     def set_favorites(request, recipe_id):
-        print(request)
         recipe = get_object_or_404(Recipe, pk=recipe_id)
         context = {'context': 'OK'}
         if request.method == 'POST':
@@ -70,3 +69,29 @@ class Api(APIView):
         except Exception:
             pass
         return Response(context, status=status.HTTP_200_OK)
+
+
+    @api_view(('POST', 'DELETE'))
+    @renderer_classes((JSONRenderer,))
+    def set_purchases(request, recipe_id):
+        recipe = get_object_or_404(Recipe, pk=recipe_id)
+        if not request.user.is_authenticated:           
+            context = {'success': True}
+            return Response(context, status=status.HTTP_200_OK)
+        if request.method == 'POST':
+            try:
+                shop_list = ShopList(user=request.user, recipe=recipe)
+                shop_list.save()
+                context = {'success': True}
+                return Response(context, status=status.HTTP_200_OK)
+            except Exception:
+                context = {'success': False}
+                return Response(context, status=status.HTTP_200_OK)
+        try:
+            shop_list = ShopList(user=request.user, recipe=recipe)
+            shop_list.delete()
+            context = {'success': True}
+            return Response(context, status=status.HTTP_200_OK)
+        except Exception:
+            context = {'success': False}
+            return Response(context, status=status.HTTP_200_OK)
