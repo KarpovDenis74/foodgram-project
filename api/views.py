@@ -70,12 +70,11 @@ class Api(APIView):
             pass
         return Response(context, status=status.HTTP_200_OK)
 
-
     @api_view(('POST', 'DELETE'))
     @renderer_classes((JSONRenderer,))
     def set_purchases(request, recipe_id):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
-        if not request.user.is_authenticated:           
+        if not request.user.is_authenticated:
             context = {'success': True}
             return Response(context, status=status.HTTP_200_OK)
         if request.method == 'POST':
