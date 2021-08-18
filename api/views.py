@@ -79,18 +79,24 @@ class Api(APIView):
             return Response(context, status=status.HTTP_200_OK)
         if request.method == 'POST':
             try:
+                print('This 1')
                 shop_list = ShopList(user=request.user, recipe=recipe)
                 shop_list.save()
                 context = {'success': True}
+                print('This 2')
                 return Response(context, status=status.HTTP_200_OK)
             except Exception:
                 context = {'success': False}
+                print('This 3')
                 return Response(context, status=status.HTTP_200_OK)
         try:
-            shop_list = ShopList(user=request.user, recipe=recipe)
+            print('This 4')
+            shop_list = ShopList.objects.get(user=request.user, recipe=recipe)
             shop_list.delete()
             context = {'success': True}
+            print('This 5')
             return Response(context, status=status.HTTP_200_OK)
         except Exception:
+            print('This 6')
             context = {'success': False}
             return Response(context, status=status.HTTP_200_OK)

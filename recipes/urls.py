@@ -21,4 +21,6 @@ urlpatterns = [
          views.RecipeView.favorites, name="favorites"),
     path('recipes/shoplist/',
          views.RecipeView.shop_list, name="shop_list"),
+    path('recipes/download_shop_list/',
+         views.RecipeView.download_shop_list, name="download_shop_list"),
 ]

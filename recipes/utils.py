@@ -1,4 +1,10 @@
-from recipes.models import Favorite, MealTime
+from recipes.models import (Subscription, Favorite,
+                            MealTime, ShopList)
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from django.conf import settings
+import io
 
 
 def get_actual_tags(request_get):
@@ -34,12 +40,10 @@ def get_recipes_full(requests, recipes):
         favorite = ''
         _tags = []
         if requests.user.is_authenticated:
-            favorites = list(Favorite.objects.filter(recipe=recipe,
-                                                     user=requests.user))
-            if len(favorites) > 0:
-                favorite = 'on'
-            else:
-                favorite = 'off'
+            favorite = list(Favorite.objects.filter(recipe=recipe,
+                                                    user=requests.user))
+            shop_list = ShopList.objects.filter(user=requests.user,
+                                                recipe=recipe)
         seted_tags = list(MealTime.objects.filter(rmt=recipe))
         all_tags = list(MealTime.objects.all())
         if seted_tags is not None:
@@ -53,5 +57,51 @@ def get_recipes_full(requests, recipes):
                                   'name_ru': tag.name_russian,
                                   'enabled': False})
 
-        recipes_full.append([recipe, favorite, _tags])
+        recipes_full.append([recipe, favorite, _tags, shop_list])
     return recipes_full
+
+
+def get_pdf(ingredients):
+    pdfmetrics.registerFont(TTFont(
+        'FreeSans',
+        settings.STATIC_ROOT + '/Font/FreeSans.ttf'))
+    buffer = io.BytesIO()
+    page = canvas.Canvas(buffer)
+    page.setFont("FreeSans", 20)
+    page.setFillColorRGB(0.6, 0.3, 0.6)
+    page.drawString(200, 780, "Продуктовый помощник")
+    page.line(100, 750, 495, 750)
+    text_object = page.beginText(150, 700)
+    text_object.setFont("FreeSans", 14)
+    for ingredient in ingredients:
+        text_object.textLine(f'{ingredient.title}: '
+                             f'{ingredient.count} '
+                             f' {ingredient.dimension}')
+    page.drawText(text_object)
+    page.line(0, 841, 595, 841)
+    page.line(100, 100, 495, 100)
+    page.setFont("FreeSans", 10)
+    page.drawString(250, 50, "Приятного аппетита !!!")
+    page.showPage()
+    page.save()
+    buffer.seek(0)
+    return buffer
+
+
+def get_shop_list_count(request):
+    if request.user.is_authenticated:
+        shop_list_count = (ShopList
+                           .objects
+                           .filter(user=request.user).count())
+    else:
+        shop_list_count = 0
+    return shop_list_count
+
+
+def get_subscription(request, author):
+    try:
+        subscription = Subscription.objects.get(user=request.user,
+                                                author=author)
+    except Exception:
+        subscription = False
+    return subscription

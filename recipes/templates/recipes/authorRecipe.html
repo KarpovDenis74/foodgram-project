@@ -25,7 +25,7 @@
     </p>
   </div>
   <div class="card-list">
-    {% for recipe, favorite, tags in page %}
+    {% for recipe, favorite, tags, shop_list in page %}
     <div class="card" data-id="{{ recipe.pk }}">
       <!-- Отображение картинки -->
       {% load thumbnail %}
@@ -62,11 +62,17 @@
         </div>
       </div>
       <div class="card__footer">
-        <button class="button button_style_light-blue" name="purchases" data-out><span
-            class="icon-plus button__icon"></span>Добавить в покупки</button>
         {% if user.is_authenticated %}
-
-        {% if favorite == 'on' %}
+          {% if shop_list %}
+            <button class="button button_style_light-blue" name="purchases">
+              <span class="icon-check button__icon"></span>Рецепт добавлен
+            </button>
+          {% else %}
+            <button class="button button_style_light-blue" name="purchases" data-out>
+              <span class="icon-plus button__icon"></span>Добавить рецепт
+            </button>
+          {% endif %}
+        {% if favorite %}
         <button class="button button_style_none" disabled="True" name="favorites"><span
             class="icon-favorite icon-favorite_active"></span></button>
         {% else %}
