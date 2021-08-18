@@ -16,11 +16,13 @@
   </div>
   <div class="author-subscribe" data-author="{{ author.pk }}">
     <p style="padding: 0 0 2em 0;">
-      {% if subscription %}
-      <button class="button button_style_light-blue button_size_subscribe" name="subscribe"
-        >Отписаться от автора</button>
-      {% else %}
-      <button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>Подписаться на автора</button>
+      {% if user.is_authenticated %}
+        {% if subscription %}
+          <button class="button button_style_light-blue button_size_subscribe" name="subscribe"
+            >Отписаться от автора</button>
+        {% else %}
+          <button class="button button_style_light-blue button_size_subscribe" name="subscribe" data-out>Подписаться на автора</button>
+        {% endif %}
       {% endif %}
     </p>
   </div>
@@ -62,22 +64,22 @@
         </div>
       </div>
       <div class="card__footer">
-        {% if user.is_authenticated %}
-          {% if shop_list %}
-            <button class="button button_style_light-blue" name="purchases">
-              <span class="icon-check button__icon"></span>Рецепт добавлен
-            </button>
-          {% else %}
-            <button class="button button_style_light-blue" name="purchases" data-out>
-              <span class="icon-plus button__icon"></span>Добавить рецепт
-            </button>
-          {% endif %}
-        {% if favorite %}
-        <button class="button button_style_none" disabled="True" name="favorites"><span
-            class="icon-favorite icon-favorite_active"></span></button>
+        {% if shop_list %}
+          <button class="button button_style_light-blue" name="purchases">
+            <span class="icon-check button__icon"></span>Рецепт добавлен
+          </button>
         {% else %}
-        <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
+          <button class="button button_style_light-blue" name="purchases" data-out>
+            <span class="icon-plus button__icon"></span>Добавить рецепт
+          </button>
         {% endif %}
+        {% if user.is_authenticated %}
+          {% if favorite %}
+            <button class="button button_style_none" disabled="True" name="favorites"><span
+              class="icon-favorite icon-favorite_active"></span></button>
+          {% else %}
+            <button class="button button_style_none" name="favorites" data-out><span class="icon-favorite"></span></button>
+          {% endif %}
         {% endif %}
       </div>
     </div>

@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from recipes.models import (Ingredient, MealTime, Recipe,
                             RecipeIngredient,
-                            Favorite)
+                            Favorite, ShopList)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -17,7 +17,8 @@ from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
 from recipes.utils import (get_recipes_full, get_actual_tags,
                            get_subscription, get_pdf,
-                           get_shop_list_count)
+                           get_shop_list_count,
+                           get_favorite, get_shop_list,)
 from django.db.models import Count, Sum
 from django.http import FileResponse
 
@@ -144,18 +145,16 @@ class RecipeView:
         ingredients = (RecipeIngredient.objects.select_related(
             'ingredient').filter(recipes=recipe))
         subscription = get_subscription(request, recipe.author)
-        try:
-            favorite = Favorite.objects.get(user=request.user, recipe=recipe)
-            favorite = 'on'
-        except Exception:
-            favorite = 'off'
+        favorite = get_favorite(request, recipe)
+        shop_list = get_shop_list(request, recipe)
         return render(request,
                       'recipes/singlePage.html',
                       {'recipe': recipe,
                        'ingredients': ingredients,
                        'subscription': subscription,
                        'favorite': favorite,
-                       'shop_list_count': shop_list_count})
+                       'shop_list_count': shop_list_count,
+                       'shop_list': shop_list})
 
     @login_required
     def delete(request, recipe_id):
@@ -220,7 +219,10 @@ class RecipeView:
                        'shop_list_count': shop_list_count})
 
     def shop_list(request):
-        recipes = Recipe.objects.filter(shoplist__user=request.user)
+        if request.user.is_authenticated:
+            recipes = Recipe.objects.filter(shoplist__user=request.user)
+        else:
+            recipes = []
         shop_list_count = get_shop_list_count(request)
         return render(request,
                       'recipes/shopList.html',
@@ -229,12 +231,15 @@ class RecipeView:
                        'shop_list_count': shop_list_count})
 
     def download_shop_list(request):
-        ingredients = (Ingredient
-                       .objects
-                       .filter(ingredient__recipes__shoplist__user=(request
-                                                                    .user))
-                       .annotate(count=Sum('ingredient__amount'))
-                       )
+        if request.user.is_authenticated:
+            ingredients = (Ingredient
+                           .objects
+                           .filter(ingredient__recipes__shoplist__user=
+                                   request.user)
+                           .annotate(count=Sum('ingredient__amount'))
+                           )
+        else:
+            ingredients = []
         buffer = get_pdf(ingredients)
         return FileResponse(buffer, as_attachment=True,
                             filename='shoplist.pdf')

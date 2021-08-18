@@ -44,6 +44,9 @@ def get_recipes_full(requests, recipes):
                                                     user=requests.user))
             shop_list = ShopList.objects.filter(user=requests.user,
                                                 recipe=recipe)
+        else:
+            favorite = False
+            shop_list = False
         seted_tags = list(MealTime.objects.filter(rmt=recipe))
         all_tags = list(MealTime.objects.all())
         if seted_tags is not None:
@@ -105,3 +108,17 @@ def get_subscription(request, author):
     except Exception:
         subscription = False
     return subscription
+
+def get_favorite(request, recipe):
+    try:
+        favorite = Favorite.objects.get(user=request.user, recipe=recipe)
+    except Exception:
+        favorite = False
+    return favorite
+
+def get_shop_list(request, recipe):
+    try:
+        shop_list = ShopList.objects.get(user=request.user, recipe=recipe)
+    except Exception:
+        shop_list = False
+    return shop_list
