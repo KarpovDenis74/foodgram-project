@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from recipes.models import (Ingredient, MealTime, Recipe,
-                            RecipeIngredient,
-                            Favorite, ShopList)
+                            RecipeIngredient,)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
@@ -232,12 +231,12 @@ class RecipeView:
 
     def download_shop_list(request):
         if request.user.is_authenticated:
-            ingredients = (Ingredient
-                           .objects
-                           .filter(ingredient__recipes__shoplist__user=
-                                   request.user)
-                           .annotate(count=Sum('ingredient__amount'))
-                           )
+            ingr = (Ingredient
+                    .objects
+                    .filter(ingredient__recipes__shoplist__user=request.user)
+                    .annotate(count=Sum('ingredient__amount'))
+                    )
+            ingredients = ingr
         else:
             ingredients = []
         buffer = get_pdf(ingredients)

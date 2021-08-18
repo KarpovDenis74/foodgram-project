@@ -109,12 +109,14 @@ def get_subscription(request, author):
         subscription = False
     return subscription
 
+
 def get_favorite(request, recipe):
     try:
         favorite = Favorite.objects.get(user=request.user, recipe=recipe)
     except Exception:
         favorite = False
     return favorite
+
 
 def get_shop_list(request, recipe):
     try:
