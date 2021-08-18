@@ -236,7 +236,6 @@ class RecipeView:
                        .annotate(count=Sum('ingredient__amount'))
                        )
         buffer = get_pdf(ingredients)
-
         return FileResponse(buffer, as_attachment=True,
                             filename='shoplist.pdf')
 
