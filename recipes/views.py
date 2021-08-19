@@ -206,8 +206,8 @@ class RecipeView:
         shop_list_count = get_shop_list_count(request)
         seted_tags_pk, tags = get_actual_tags(request.GET)
         recipes = (Recipe.objects.filter(meal_time__in=seted_tags_pk,
-                                        favorite_recipe__user=request.user)
-                                .distinct())
+                                         favorite_recipe__user=request.user)
+                   .distinct())
         recipes = get_recipes_full(request, recipes)
         paginator = Paginator(recipes, 3)
         page_number = request.GET.get('page')
