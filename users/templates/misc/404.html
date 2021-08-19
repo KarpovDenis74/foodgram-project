@@ -1,0 +1,29 @@
+Х: учеутвы ЭифыуюреьдЭ :Ъ
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'pages/index.css' %}">
+{% endblock %}
+{% block content %}
+{% load user_filters %}
+
+
+
+
+<main class="main container">
+  <div class="main__header">
+    <h1 class="main__title">{{ title }}</h1>
+  </div>
+  <div class="custom-center-block">
+    <div class="form-container">
+      <p>{{ text }}</p>
+    </div>
+    </form>
+</div>
+  </div>
+
+
+</main>
+{% endblock %}

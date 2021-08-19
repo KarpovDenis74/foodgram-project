@@ -82,3 +82,19 @@ def users_admin_delete(request, user_id):
     user = get_object_or_404(User, pk=user_id)
     user.delete()
     return redirect('users:users_admin')
+
+
+def page_not_found(request, exception):
+    context = {"path": request.path,
+               "title": "Ошибка 404",
+               "text": "Такой страницы не существует"}
+    return render(request, "misc/404.html",
+                  context, status=404)
+
+
+def server_error(request):
+    context = {"title": "Ошибка 500",
+               "text": ("Вы зашли на секретную страницу сайта, "
+                        "на нее попадают менее 0.01% пользователей. "
+                        "Мы подумаем, что с этим сделать ;)")}
+    return render(request, "misc/500.html", context, status=500)
