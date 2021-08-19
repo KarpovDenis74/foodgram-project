@@ -9,7 +9,6 @@ import io
 
 def get_actual_tags(request_get):
     seted_tags = request_get.getlist('tags')
-    print(f'seted_tags = {seted_tags}')
     all_tags = list(MealTime.objects.all())
     tags = []
     seted_tags_pk = []
@@ -47,19 +46,19 @@ def get_recipes_full(requests, recipes):
         else:
             favorite = False
             shop_list = False
-        seted_tags = list(MealTime.objects.filter(rmt=recipe))
+        seted_tags = list(MealTime.objects.filter(rmt_mt__recipes=recipe))
+        print(f'{recipe} - {seted_tags}')
         all_tags = list(MealTime.objects.all())
-        if seted_tags is not None:
-            for tag in all_tags:
-                if tag in seted_tags:
-                    _tags.append({'name_en': tag.name_english,
-                                  'name_ru': tag.name_russian,
-                                  'enabled': True})
-                else:
-                    _tags.append({'name_en': tag.name_english,
-                                  'name_ru': tag.name_russian,
-                                  'enabled': False})
-
+        for tag in all_tags:
+            if tag in seted_tags:
+                _tags.append({'name_en': tag.name_english,
+                              'name_ru': tag.name_russian,
+                              'enabled': True})
+            else:
+                _tags.append({'name_en': tag.name_english,
+                              'name_ru': tag.name_russian,
+                              'enabled': False})
+            print(f'_tags - {_tags}')
         recipes_full.append([recipe, favorite, _tags, shop_list])
     return recipes_full
 

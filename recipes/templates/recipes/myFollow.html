@@ -9,6 +9,7 @@
 {% load user_filters %}
 
 <main class="main container">
+  {% csrf_token %}
   <div class="main__header">
       <h1 class="main__title">Мои подписки</h1>
   </div>
@@ -45,7 +46,7 @@
           </ul>
         </div>
         <div class="card-user__footer">
-            <button class="button button_style_light-blue button_size_auto" name="subscribe">Отписаться</button>
+            <button class="button button_style_light-blue button_size_auto" name="subscribe" >Отписаться</button>
         </div>
       </div>
     {% endfor %}

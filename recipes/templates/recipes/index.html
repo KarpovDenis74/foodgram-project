@@ -33,12 +33,12 @@
             {% endif %}
             {% if tag.name_en == 'breakfast' %}
               <li class="card__item">
-                <span class="badge {% if tag.enabled %} badge_style_orange{% endif %}">{{ tag.name_ru }}</span>
+                <span class="badge{% if tag.enabled %} badge_style_orange{% endif %}">{{ tag.name_ru }}</span>
               </li>
             {% endif %}
             {% if tag.name_en == 'dinner' %}
               <li class="card__item">
-                <span class="badge {% if tag.enabled %} badge_style_purple{% endif %}">{{ tag.name_ru }}</span>
+                <span class="badge{% if tag.enabled %} badge_style_purple{% endif %}">{{ tag.name_ru }}</span>
               </li>
             {% endif %}
           {% endfor %}
@@ -49,13 +49,13 @@
         </div>
       </div>
       <div class="card__footer">
+        {% if shop_list %}
+          <button class="button button_style_light-blue" name="purchases"><span class="icon-check button__icon"></span>Рецепт добавлен</button>
+        {% else %}
+          <button class="button button_style_light-blue" name="purchases" data-out><span
+            class="icon-plus button__icon"></span>Добавить в покупки</button>
+        {% endif %}
         {% if user.is_authenticated %}
-          {% if shop_list %}
-            <button class="button button_style_light-blue" name="purchases"><span class="icon-check button__icon"></span>Рецепт добавлен</button>
-          {% else %}
-            <button class="button button_style_light-blue" name="purchases" data-out><span
-              class="icon-plus button__icon"></span>Добавить в покупки</button>
-          {% endif %}
           {% if favorite %}
             <button class="button button_style_none" disabled="True" name="favorites"><span class="icon-favorite icon-favorite_active"></span></button>
           {% else %}

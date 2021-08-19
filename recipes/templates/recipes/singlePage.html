@@ -23,8 +23,7 @@
             <span class="icon-favorite icon-favorite_big icon-favorite_active"></span>
           </button>
           <div class="single-card__favorite-tooltip tooltip">Убрать из избранного</div>
-          {% endif %}
-          {% if favorite %}
+          {% else %}
           <button class="button button_style_none" data-out="True" name="favorites">
             <span class="icon-favorite icon-favorite_big"></span>
           </button>
@@ -65,8 +64,7 @@
             </button>
           </li>
         {% endif %}
-        </ul>
-        <!-- <li class="single-card__item"><button class="button  " name="purchases" data-out><span class="icon-plus"></span> Добавить в покупки</button></li> -->
+        
         {% if user.is_authenticated %}
           {% if user != recipe.author %}         
             <li class="single-card__item">

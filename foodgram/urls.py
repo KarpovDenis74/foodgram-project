@@ -11,9 +11,15 @@ handler404 = "users.views.page_not_found"  # noqa
 handler500 = "users.views.server_error"  # noqa
 
 urlpatterns = [
+    #  регистрация и авторизация
+    path("auth/", include("users.urls")),
+
+    #  если нужного шаблона для /auth не нашлось в файле users.urls —
+    #  ищем совпадения в файле django.contrib.auth.urls
+    path("auth/", include("django.contrib.auth.urls")),
     path('api/', include("api.urls")),
     path('admin/', admin.site.urls),
-    path('users/', include("users.urls")),
+
     path('captcha/', include('captcha.urls')),
     path('', include("recipes.urls")),
     path('', views.RecipeView.list, name="index"),
