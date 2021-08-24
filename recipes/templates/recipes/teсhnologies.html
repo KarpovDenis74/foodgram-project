@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+
+{% load static %}
+{% block css %}
+<link rel="stylesheet" href="{% static 'pages/index.css' %}">
+{% endblock %}
+{% block content %}
+{% load user_filters %}
+
+
+
+
+<main class="main container">
+    <div class="main__header"></div>
+    <h1 class="main__title">{{ title }}</h1>
+    </div>
+    <div><p> </p></div>
+    <div>
+        <p> </p>
+    </div>
+    <div>
+        <p> </p>
+    </div>
+    <div class="custom-center-block">
+        <p> Проект написан с использованием фреймворка Django </p>
+        <p> Реализовано API с помощью фрэймворка Django REST FraimWork. </p>
+        <p> Также инспользованы сопутствующие пакеты для реализации отдельного функционала сайта </p>
+    </div>
+
+
+</main>
+{% endblock %}

@@ -1,10 +1,12 @@
-from recipes.models import (Subscription, Favorite,
-                            MealTime, ShopList)
-from reportlab.pdfgen import canvas
+import io
+
+from django.conf import settings
+from django.shortcuts import get_object_or_404
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
-from django.conf import settings
-import io
+from reportlab.pdfgen import canvas
+
+from recipes.models import Favorite, MealTime, ShopList, Subscription
 
 
 def get_actual_tags(request_get):
@@ -101,20 +103,18 @@ def get_shop_list_count(request):
 
 
 def get_subscription(request, author):
-    try:
-        subscription = Subscription.objects.get(user=request.user,
-                                                author=author)
-    except Exception:
-        subscription = False
-    return subscription
+    get_object_or_404(Subscription,
+                      user=request.user,
+                      author=author)
+    return True
 
 
 def get_favorite(request, recipe):
-    try:
-        favorite = Favorite.objects.get(user=request.user, recipe=recipe)
-    except Exception:
-        favorite = False
-    return favorite
+
+    get_object_or_404(Favorite,
+                      user=request.user,
+                      recipe=recipe)
+    return True
 
 
 def get_shop_list(request, recipe):

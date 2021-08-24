@@ -1,6 +1,8 @@
-from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
+from django.db import models
+from django.db.models import UniqueConstraint
+
 User = get_user_model()
 
 
@@ -25,8 +27,8 @@ class Ingredient(models.Model):
         return f'{self.title}, {self.dimension}'
 
     class Meta:
-        verbose_name = 'Инградиент'
-        verbose_name_plural = 'Инградиенты'
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
         ordering = ('title', )
 
 
@@ -40,12 +42,13 @@ class Recipe(models.Model):
     text = models.TextField(
         verbose_name=('Описание рецепта'))
     time_cooking = (models.PositiveIntegerField(
+                    validators=[MinValueValidator(1)],
                     verbose_name='Время приготовления,(в минутах)'))
     ingredient = models.ManyToManyField(Ingredient,
-                                        through="RecipeIngredient",
+                                        through='RecipeIngredient',
                                         through_fields=('recipes',
                                                         'ingredient'),
-                                        verbose_name='Инградиент'
+                                        verbose_name='Ингредиент'
                                         )
     pub_date = models.DateTimeField(verbose_name='Дата публикации',
                                     auto_now_add=True,
@@ -55,7 +58,7 @@ class Recipe(models.Model):
     slug = models.SlugField(max_length=150)
     meal_time = models.ManyToManyField(MealTime,
                                        related_name='rmt',
-                                       through="RecipeMealTime",
+                                       through='RecipeMealTime',
                                        through_fields=('recipes',
                                                        'meal_time'),
                                        verbose_name='Время приема пищи'
@@ -82,7 +85,8 @@ class RecipeMealTime(models.Model):
         return f'{self.recipes.name}: {self.meal_time.name_english}'
 
     class Meta:
-        unique_together = ("recipes", "meal_time")
+        UniqueConstraint(fields=['recipes', 'meal_time'],
+                         name='unique_recipes_meal_time')
         verbose_name = 'Период приема шищи'
         verbose_name_plural = 'Периоды приема пищи'
         ordering = ['-recipes']
@@ -95,16 +99,17 @@ class RecipeIngredient(models.Model):
     ingredient = models.ForeignKey(Ingredient,
                                    on_delete=models.CASCADE,
                                    related_name='ingredient')
-    amount = models.FloatField(verbose_name="Количество",
-                               validators=[MinValueValidator(0)])
+    amount = models.FloatField(verbose_name='Количество',
+                               validators=[MinValueValidator(1)])
 
     def __str__(self):
         return f'{self.recipes.name}: {self.ingredient.title} - {self.amount}'
 
     class Meta:
-        verbose_name = 'Инградиент в рецепте'
-        verbose_name_plural = 'Инградиенты в рецептах'
-        unique_together = ("recipes", "ingredient")
+        verbose_name = 'Ингредиент в рецепте'
+        verbose_name_plural = 'Ингредиенты в рецептах'
+        UniqueConstraint(fields=['recipes', 'ingredient'],
+                         name='unique_recipes_ingredient')
 
 
 class Favorite(models.Model):
@@ -118,7 +123,8 @@ class Favorite(models.Model):
                                related_name='favorite_recipe')
 
     class Meta:
-        unique_together = ("user", "recipe")
+        UniqueConstraint(fields=['user', 'recipe'],
+                         name='unique_favorite')
         verbose_name = 'Объект избранного'
         verbose_name_plural = 'Объекты избранного'
 
@@ -134,7 +140,8 @@ class Subscription(models.Model):
                                related_name='subscription_author')
 
     class Meta:
-        unique_together = ("user", "author")
+        UniqueConstraint(fields=['user', 'author'],
+                         name='unique_subscription')
 
 
 class ShopList(models.Model):
@@ -146,4 +153,5 @@ class ShopList(models.Model):
                                verbose_name='Рецепт')
 
     class Meta:
-        unique_together = ("user", "recipe")
+        UniqueConstraint(fields=['user', 'recipe'],
+                         name='unique_shop_list')

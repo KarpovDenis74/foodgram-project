@@ -1,6 +1,6 @@
 [![foodgram-project]
 ()
-# foodgram-project — [«Продуктовый помощник»](http://_____/)	
+# foodgram-project — [«Продуктовый помощник»](http://github.com/KarpovDenis74/foodgram-project)	
 Сайт «Продуктовый помощник»: 
     Сайт рецептов удобно навигированный и структурированный.
     Пользователя выкладывают рецепты блюд. Можно посмотреть рецепты, их описание, добавить в избранное,
@@ -9,21 +9,24 @@
 
 ## Подготовка к работе:
 
-1) Клонируйте репозиторий на локальную машину.  
-   git clone /foodgram-project.git
+1) Скопируйте в рабочую диреторию:
+        DockerFile
+        docker-compose.yaml
 2) Создайте файл .env и заполните его своими значениями. 
-   Все нужные переменные и их примерные значения описаны файле .env.template.
+        Все нужные переменные и их примерные значения описаны файле .env.template.
 3) Запустите процесс сборки и запуска контейнеров:  
         docker-compose up
-4) Применить миграции, введите:  
+4) Примените миграции, введите:  
         docker-compose -f docker-compose.yaml exec web python manage.py migrate --noinput
-5) Создаем суперпользователя, необходимо ввести:  
+5) Создайте суперпользователя, необходимо ввести:  
         docker-compose -f docker-compose.yaml exec web python manage.py createsuperuser
-6) Добавляем в базу ингредиенты и теги:  
-        docker-compose -f docker-compose.yaml exec web python manage.py load_ingredients_data
-7) Собираем статику:  
+6) Добавьте  в базу ингредиенты и теги (данные будут взяты из папки data_csv):  
+        docker-compose -f docker-compose.yaml exec web python manage load_ingredients
+        docker-compose -f docker-compose.yaml exec web python manage.py load_tags
+7) Собирите статику:  
         docker-compose -f docker-compose.yaml exec web python manage.py collectstatic
-   
+
+Готово !!! 
    
 ## Технологии
 * [Python](https://www.python.org/) - высокоуровневый язык программирования общего назначения;

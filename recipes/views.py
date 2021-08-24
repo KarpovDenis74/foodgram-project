@@ -1,26 +1,23 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render
-from recipes.models import (Ingredient, MealTime, Recipe,
-                            RecipeIngredient,)
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from recipes.serialisers import (IngredientSerializer,
-                                 FormToRecipeSerializer)
-from rest_framework.decorators import api_view, renderer_classes
-from rest_framework.renderers import JSONRenderer
-from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
-from recipes.utils import (get_recipes_full, get_actual_tags,
-                           get_subscription, get_pdf,
-                           get_shop_list_count,
-                           get_favorite, get_shop_list,)
 from django.db.models import Count, Sum
 from django.http import FileResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic.base import TemplateView
+from rest_framework import status
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from recipes.models import Ingredient, MealTime, Recipe, RecipeIngredient
+from recipes.serialisers import FormToRecipeSerializer, IngredientSerializer
+from recipes.utils import (get_actual_tags, get_favorite, get_pdf,
+                           get_recipes_full, get_shop_list,
+                           get_shop_list_count, get_subscription)
 
 User = get_user_model()
 
@@ -58,12 +55,8 @@ class RecipeView:
         meal_time_all = MealTime.objects.all()
         tags = []
         for tag in meal_time_all:
-            if tag in meal_time:
-                tags.append({'name': tag.name_english,
-                             'enabled': True})
-            else:
-                tags.append({'name': tag.name_english,
-                             'enabled': False})
+            tags.append({'name': tag.name_english,
+                         'enabled': tag in meal_time})
         if recipe.author != request.user:
             return redirect('recipes:view_recipe', recipe_id=recipe_id)
         context = {'title': 'Редактирование рецепта',
@@ -72,7 +65,6 @@ class RecipeView:
         ingredients = (RecipeIngredient.objects
                                        .filter(recipes=recipe)
                                        .select_related('ingredient'))
-        # tags = MealTime.objects.filter(rmt_mt__recipes=recipe)
         file = request.FILES or None,
         if not request.POST:
             return render(request,
@@ -104,7 +96,7 @@ class RecipeView:
                    .distinct()
                    )
         recipes = get_recipes_full(request, recipes)
-        paginator = Paginator(recipes, 3)
+        paginator = Paginator(recipes, settings.RECIPE_IN_PAGE)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         return render(request,
@@ -119,7 +111,10 @@ class RecipeView:
         author = get_object_or_404(User, pk=author_id)
         shop_list_count = get_shop_list_count(request)
         seted_tags_pk, tags = get_actual_tags(request.GET)
-        subscription = get_subscription(request, author)
+        if request.user.is_authenticated:
+            subscription = get_subscription(request, author)
+        else:
+            subscription = False
         recipes = (Recipe.objects
                    .filter(meal_time__in=seted_tags_pk,
                            author=author)
@@ -128,7 +123,7 @@ class RecipeView:
                    .distinct()
                    )
         recipes = get_recipes_full(request, recipes)
-        paginator = Paginator(recipes, 3)
+        paginator = Paginator(recipes, settings.RECIPE_IN_PAGE)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         context = {'page': page, 'paginator': paginator,
@@ -143,8 +138,12 @@ class RecipeView:
         shop_list_count = get_shop_list_count(request)
         ingredients = (RecipeIngredient.objects.select_related(
             'ingredient').filter(recipes=recipe))
-        subscription = get_subscription(request, recipe.author)
-        favorite = get_favorite(request, recipe)
+        if request.user.is_authenticated:
+            subscription = get_subscription(request, recipe.author)
+            favorite = get_favorite(request, recipe)
+        else:
+            subscription = False
+            favorite = False
         shop_list = get_shop_list(request, recipe)
         return render(request,
                       'recipes/singlePage.html',
@@ -165,7 +164,7 @@ class RecipeView:
                    'recipe': recipe}
         if request.method != 'POST':
             return render(request, 'recipes/checkPage.html', context)
-        Recipe.objects.get(pk=recipe_id).delete()
+        recipe.delete()
         return redirect('index')
 
     @login_required
@@ -183,14 +182,14 @@ class RecipeView:
                        .filter(author=author)
                        )
             recipes_user_for_card = len(recipes)
-            if recipes_user_for_card > 3:
-                recipes = recipes[:3]
+            if recipes_user_for_card > settings.RECIPE_IN_PAGE:
+                recipes = recipes[:settings.RECIPE_IN_PAGE]
             else:
                 recipes = recipes[:recipes_user_for_card]
             author_recipes.append([author,
                                    recipes,
                                    ])
-        paginator = Paginator(author_recipes, 3)
+        paginator = Paginator(author_recipes, settings.RECIPE_IN_PAGE)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         return render(request,
@@ -209,7 +208,7 @@ class RecipeView:
                                          favorite_recipe__user=request.user)
                    .distinct())
         recipes = get_recipes_full(request, recipes)
-        paginator = Paginator(recipes, 3)
+        paginator = Paginator(recipes, settings.RECIPE_IN_PAGE)
         page_number = request.GET.get('page')
         page = paginator.get_page(page_number)
         return render(request,
@@ -258,3 +257,21 @@ class ApiIngredient(APIView):
         if serialiser.is_valid:
             return Response(serialiser.data, status=status.HTTP_200_OK)
         return Response(status=status.TTP_400_BAD_REQUEST)
+
+
+class AuthorPage(TemplateView):
+    template_name = 'recipes/about.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Об авторе'
+        return context
+
+
+class TeсhnologiesPage(TemplateView):
+    template_name = 'recipes/teсhnologies.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Используемый стек технологий'
+        return context

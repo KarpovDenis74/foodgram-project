@@ -13,8 +13,6 @@ services:
   web:
     image: fotokarpov/foodgram:v1.0
     restart: always
-    ports:
-      - "8000:8000"
     volumes:
       - static:/code/static/
       - media:/code/media/

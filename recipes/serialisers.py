@@ -1,12 +1,13 @@
-from django.shortcuts import get_object_or_404
-from rest_framework import serializers
-from recipes.models import (Recipe, Ingredient,
-                            MealTime, RecipeIngredient,
-                            RecipeMealTime)
 import re
-from django.db import transaction
-from django.utils import timezone
+
 from django.conf import settings
+from django.db import transaction
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework import serializers
+
+from recipes.models import (Ingredient, MealTime, Recipe, RecipeIngredient,
+                            RecipeMealTime)
 
 
 class MealTimeSerializer(serializers.ModelSerializer):
@@ -37,7 +38,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class FormToRecipeSerializer:
     """
-        Принимает в качестве аргумента словарь request.POST
+        Принимает в качестве аргумента словарь request
         из POST запроса.
         сериализует полученные данные для объекта Recipe
         в переменные:
@@ -59,9 +60,9 @@ class FormToRecipeSerializer:
         self.time_cooking = self.request.POST.get('time_cooking')
         self.image = self.request.FILES.get('file')
         self.keys_post = self.request.POST.keys()
-        # маска ключа имени инградиента в POST-ответе
+        # маска ключа имени ингредиента в POST-ответе
         self.name_ingredient_mask = 'nameIngredient_'
-        # маска ключа количества инградиента в POST-ответе
+        # маска ключа количества ингредиента в POST-ответе
         self.value_ingredient_mask = 'valueIngredient_'
 
     def meal_time_exist(self):
@@ -116,7 +117,7 @@ class FormToRecipeSerializer:
                 ingredient_amount = int(self.request.POST.get(
                     amount_ingredient_key))
                 if ingredient_amount <= 0:
-                    self.errors['amount'] = ('Количество инградиентов'
+                    self.errors['amount'] = ('Количество ингредиентов'
                                              ' должно быть числом больше "0"')
                     return False
                 ingredient_title = self.request.POST.get(key)
@@ -129,7 +130,7 @@ class FormToRecipeSerializer:
                     pass
         if self.ingredients == []:
             self.ingredients = False
-            self.errors['ingredient'] = 'Инградиенты не найдены'
+            self.errors['ingredient'] = 'Ингредиенты не найдены'
             return False
         return bool(True)
 
@@ -196,7 +197,6 @@ class FormToRecipeSerializer:
                                 time_cooking=self.time_cooking,
                                 image=self.image)
                 recipe.save()
-                print('рецепт сохранен')
             else:
                 recipe = Recipe(pk=self.pk,
                                 name=self.name,
@@ -206,16 +206,9 @@ class FormToRecipeSerializer:
                                 pub_date=timezone.datetime.now(),
                                 image=self.image)
                 recipe.save()
-                # recipe = Recipe.objects.filter(pk=self.pk).update(
-                #         name=self.name,
-                #         text=self.description,
-                #         time_cooking=self.time_cooking,
-                #         image=self.image)
-                print(f'рецепт изменен = {recipe}')
             if not self.IS_EDIT:
                 for meal_time in self.meal_time:
                     recipe.meal_time.add(meal_time)
-                print(' тэги сохранены')
             else:
                 recipe = Recipe.objects.filter(pk=self.pk).first()
                 del_times = RecipeMealTime.objects.filter(recipes=recipe)
@@ -223,7 +216,6 @@ class FormToRecipeSerializer:
                     del_time.delete()
                 for meal_time in self.meal_time:
                     recipe.meal_time.add(meal_time)
-                print(' тэги изменены')
             if not self.IS_EDIT:
                 for ingr_number in range(0, len(self.ingredients)):
                     ingredient = self.ingredients[ingr_number][0]
@@ -233,7 +225,6 @@ class FormToRecipeSerializer:
                         .get_or_create(recipes=recipe,
                                        ingredient=ingredient,
                                        amount=amount))
-                print(' инградиенты  сохранены')
             else:
                 recipe = Recipe.objects.filter(pk=self.pk).first()
                 del_ingredients = (RecipeIngredient.objects
@@ -245,4 +236,3 @@ class FormToRecipeSerializer:
                         recipes=recipe,
                         ingredient=self.ingredients[ingr_number][0],
                         amount=self.ingredients[ingr_number][1])
-                print(' инградиенты  изменены')

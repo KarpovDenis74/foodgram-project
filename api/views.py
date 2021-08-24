@@ -1,15 +1,14 @@
 from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
-from recipes.models import (Favorite, Ingredient, Subscription,
-                            Recipe, ShopList)
 from django.contrib.auth.decorators import login_required
-from rest_framework.views import APIView
-from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
+from recipes.models import Favorite, Ingredient, Recipe, ShopList, Subscription
 from rest_framework import status
-from api.serialisers import (IngredientSerializer,
-                             )
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from api.serialisers import IngredientSerializer
 
 User = get_user_model()
 
@@ -56,18 +55,14 @@ class Api(APIView):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
         context = {'context': 'OK'}
         if request.method == 'POST':
-            try:
-                favorite = Favorite(user=request.user,
-                                    recipe=recipe)
-                favorite.save()
-            except Exception:
-                pass
+            favorite = Favorite(user=request.user,
+                                recipe=recipe)
+            favorite.save()
             return Response(context, status=status.HTTP_200_OK)
-        try:
-            favorite = Favorite.objects.get(user=request.user, recipe=recipe)
-            favorite.delete()
-        except Exception:
-            pass
+        favorite = get_object_or_404(Favorite,
+                                     user=request.user,
+                                     recipe=recipe)
+        favorite.delete()
         return Response(context, status=status.HTTP_200_OK)
 
     @api_view(('POST', 'DELETE'))
@@ -79,24 +74,18 @@ class Api(APIView):
             return Response(context, status=status.HTTP_200_OK)
         if request.method == 'POST':
             try:
-                print('This 1')
                 shop_list = ShopList(user=request.user, recipe=recipe)
                 shop_list.save()
                 context = {'success': True}
-                print('This 2')
                 return Response(context, status=status.HTTP_200_OK)
             except Exception:
                 context = {'success': False}
-                print('This 3')
                 return Response(context, status=status.HTTP_200_OK)
         try:
-            print('This 4')
             shop_list = ShopList.objects.get(user=request.user, recipe=recipe)
             shop_list.delete()
             context = {'success': True}
-            print('This 5')
             return Response(context, status=status.HTTP_200_OK)
         except Exception:
-            print('This 6')
             context = {'success': False}
             return Response(context, status=status.HTTP_200_OK)

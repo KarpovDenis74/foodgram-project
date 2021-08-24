@@ -1,8 +1,8 @@
 from django.contrib import admin
-from recipes.models import (Ingredient, Recipe,
-                            RecipeIngredient, MealTime,
-                            RecipeMealTime, Favorite,
-                            Subscription, ShopList)
+
+from recipes.models import (Favorite, Ingredient, MealTime, Recipe,
+                            RecipeIngredient, RecipeMealTime, ShopList,
+                            Subscription)
 
 
 class MembershipInline(admin.TabularInline):

@@ -1,9 +1,9 @@
-from django.core.management.base import BaseCommand
-# from django.core.management.base import CommandError
-from recipes.models import Ingredient
 import csv
-from foodgram.settings import BASE_DIR
 import os
+
+from django.core.management.base import BaseCommand
+from foodgram.settings import BASE_DIR
+from recipes.models import Ingredient
 
 CSV_FILE_PATCH = os.path.join(BASE_DIR, 'ingredients.csv')
 

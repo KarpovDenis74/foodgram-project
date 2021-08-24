@@ -1,13 +1,15 @@
-from django.shortcuts import get_object_or_404, render, redirect
-from django.views.generic import CreateView
-from users.forms import CreationForm, FormUsersEdit
-from django.urls import reverse_lazy
-from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
+import logging
+
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-import logging
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+
+from users.forms import CreationForm, FormUsersEdit
 
 # настраиваем логирование в приложении Users
 users_logger = logging.getLogger("Users")
@@ -44,7 +46,6 @@ class SignUp(CreateView):
                 fail_silently=False,
             )
         except Exception as e:
-            print('Письмо о регистрации пользователя не отправлено')
             users_logger.error('Регистрация пользователя username: '
                                f'{self.object.username}.'
                                'Ошибка отправки письма на адрес: '
