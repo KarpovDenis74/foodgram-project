@@ -103,18 +103,20 @@ def get_shop_list_count(request):
 
 
 def get_subscription(request, author):
-    get_object_or_404(Subscription,
-                      user=request.user,
-                      author=author)
-    return True
+    try:
+        subscription = Subscription.objects.get(user=request.user,
+                                                author=author)
+    except Exception:
+        subscription = False
+    return subscription
 
 
 def get_favorite(request, recipe):
-
-    get_object_or_404(Favorite,
-                      user=request.user,
-                      recipe=recipe)
-    return True
+    try:
+        favorite = Favorite.objects.get(user=request.user, recipe=recipe)
+    except Exception:
+        favorite = False
+    return favorite
 
 
 def get_shop_list(request, recipe):
