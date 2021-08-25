@@ -46,6 +46,7 @@ class FormToRecipeSerializer:
             self.meal_time = [объекты MealTime}
     """
     def __init__(self, request, pk=None):
+        print(request.POST)
         self.pk = pk
         if pk is None:
             self.IS_EDIT = False

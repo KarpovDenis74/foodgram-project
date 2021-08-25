@@ -111,10 +111,7 @@ class RecipeView:
         author = get_object_or_404(User, pk=author_id)
         shop_list_count = get_shop_list_count(request)
         seted_tags_pk, tags = get_actual_tags(request.GET)
-        if request.user.is_authenticated:
-            subscription = get_subscription(request, author)
-        else:
-            subscription = False
+        subscription = get_subscription(request, author)
         recipes = (Recipe.objects
                    .filter(meal_time__in=seted_tags_pk,
                            author=author)
@@ -138,12 +135,8 @@ class RecipeView:
         shop_list_count = get_shop_list_count(request)
         ingredients = (RecipeIngredient.objects.select_related(
             'ingredient').filter(recipes=recipe))
-        if request.user.is_authenticated:
-            subscription = get_subscription(request, recipe.author)
-            favorite = get_favorite(request, recipe)
-        else:
-            subscription = False
-            favorite = False
+        subscription = get_subscription(request, recipe.author)
+        favorite = get_favorite(request, recipe)
         shop_list = get_shop_list(request, recipe)
         return render(request,
                       'recipes/singlePage.html',
