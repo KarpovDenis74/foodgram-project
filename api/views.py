@@ -71,6 +71,13 @@ class Api(APIView):
         recipe = get_object_or_404(Recipe, pk=recipe_id)
         if not request.user.is_authenticated:
             context = {'success': True}
+            if request.method == 'POST':
+                Api._guest_post_set_purchases(request, recipe_id)
+                return Response(context, status=status.HTTP_200_OK)
+            if request.session.get('purchases'):
+                if recipe_id in request.session.get('purchases'):
+                    request.session['purchases'].remove(recipe_id)
+                    request.session.save()
             return Response(context, status=status.HTTP_200_OK)
         if request.method == 'POST':
             try:
@@ -89,3 +96,12 @@ class Api(APIView):
         except Exception:
             context = {'success': False}
             return Response(context, status=status.HTTP_200_OK)
+
+    def _guest_post_set_purchases(request, recipe_id):
+        if request.session.get('purchases'):
+            if recipe_id not in (request.session['purchases']):
+                request.session['purchases'].append(recipe_id)
+                request.session.save()
+        else:
+            request.session['purchases'] = [recipe_id, ]
+            request.session.save()

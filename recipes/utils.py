@@ -34,21 +34,20 @@ def get_actual_tags(request_get):
     return seted_tags_pk, tags
 
 
-def get_recipes_full(requests, recipes):
+def get_recipes_full(request, recipes):
     recipes_full = []
     for recipe in recipes:
         favorite = ''
         _tags = []
-        if requests.user.is_authenticated:
+        if request.user.is_authenticated:
             favorite = list(Favorite.objects.filter(recipe=recipe,
-                                                    user=requests.user))
-            shop_list = ShopList.objects.filter(user=requests.user,
+                                                    user=request.user))
+            shop_list = ShopList.objects.filter(user=request.user,
                                                 recipe=recipe)
         else:
             favorite = False
-            shop_list = False
+            shop_list = recipe.pk in request.session.get('purchases', ())
         seted_tags = list(MealTime.objects.filter(rmt_mt__recipes=recipe))
-        print(f'{recipe} - {seted_tags}')
         all_tags = list(MealTime.objects.all())
         for tag in all_tags:
             if tag in seted_tags:
@@ -59,7 +58,6 @@ def get_recipes_full(requests, recipes):
                 _tags.append({'name_en': tag.name_english,
                               'name_ru': tag.name_russian,
                               'enabled': False})
-            print(f'_tags - {_tags}')
         recipes_full.append([recipe, favorite, _tags, shop_list])
     return recipes_full
 
@@ -96,8 +94,12 @@ def get_shop_list_count(request):
         shop_list_count = (ShopList
                            .objects
                            .filter(user=request.user).count())
+    elif request.session.get('purchases'):
+        shop_list_count = len(request.session['purchases'])
+        print(f'shop_list_count = {shop_list_count}')
     else:
         shop_list_count = 0
+        print(f'shop_list_count = {shop_list_count}')
     return shop_list_count
 
 
@@ -119,8 +121,16 @@ def get_favorite(request, recipe):
 
 
 def get_shop_list(request, recipe):
-    try:
-        shop_list = ShopList.objects.get(user=request.user, recipe=recipe)
-    except Exception:
+    if request.user.is_authenticated:
+        try:
+            shop_list = ShopList.objects.get(user=request.user, recipe=recipe)
+        except Exception:
+            shop_list = False
+        return shop_list
+    elif request.session.get('purchases'):
+        shop_list = recipe.pk in request.session.get('purchases')
+        print(f'shop_list = {shop_list}')
+    else:
         shop_list = False
+        print(f'shop_list = {shop_list}')
     return shop_list

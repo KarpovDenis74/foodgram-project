@@ -214,8 +214,12 @@ class RecipeView:
     def shop_list(request):
         if request.user.is_authenticated:
             recipes = Recipe.objects.filter(shoplist__user=request.user)
+        elif request.session.get('purchases'):
+            recipes = (Recipe
+                       .objects
+                       .filter(pk__in=request.session['purchases']))
         else:
-            recipes = []
+            recipes = None
         shop_list_count = get_shop_list_count(request)
         return render(request,
                       'recipes/shopList.html',
@@ -230,10 +234,14 @@ class RecipeView:
                     .filter(ingredient__recipes__shoplist__user=request.user)
                     .annotate(count=Sum('ingredient__amount'))
                     )
-            ingredients = ingr
         else:
-            ingredients = []
-        buffer = get_pdf(ingredients)
+            ingr = (Ingredient
+                    .objects
+                    .filter(ingredient__recipes__in=(request
+                                                     .session['purchases']))
+                    .annotate(count=Sum('ingredient__amount'))
+                    )
+        buffer = get_pdf(ingr)
         return FileResponse(buffer, as_attachment=True,
                             filename='shoplist.pdf')
 
