@@ -1,14 +1,14 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from recipes.models import Favorite, Ingredient, Recipe, ShopList, Subscription
 from rest_framework import status
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.serialisers import IngredientSerializer
+from api.serializers import IngredientSerializer
+from recipes.models import Favorite, Ingredient, Recipe, ShopList, Subscription
 
 User = get_user_model()
 
@@ -24,7 +24,7 @@ class Api(APIView):
         serialiser = IngredientSerializer(ingredient, many=True)
         if serialiser.is_valid:
             return Response(serialiser.data, status=status.HTTP_200_OK)
-        return Response(status=status.TTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @login_required
     @api_view(('POST', 'DELETE'))
@@ -32,6 +32,9 @@ class Api(APIView):
     def set_subscriptions(request, author_id):
         author = get_object_or_404(User, pk=author_id)
         context = {'context': 'OK'}
+        if request.user == author:
+            context = {'context': 'False'}
+            return Response(context, status=status.HTTP_200_OK)
         if request.method == 'POST':
             try:
                 subscription = Subscription(user=request.user,

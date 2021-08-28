@@ -13,7 +13,7 @@ handler500 = 'users.views.server_error'  # noqa
 urlpatterns = [
     path('auth/', include('users.urls')),
     path('auth/', include('django.contrib.auth.urls')),
-    path('api/v1/', include('api.urls')),
+    path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
     path('captcha/', include('captcha.urls')),
     path('about/', views.AuthorPage.as_view(), name='about'),
